@@ -1,0 +1,38 @@
+📋 Suggested Features for the CMS:
+Case Records Table
+
+Case ID, Title, Date Filed
+
+Petitioner vs Respondent
+
+Case Type (Civil, Criminal, Constitutional, etc.)
+
+Status (Upcoming, In Progress, Closed)
+
+Court Location (City, Court Name)
+
+Calendar View
+
+Upcoming Hearings
+
+Alerts and Notifications
+
+Search & Filter
+
+By Date, Case Type, Court, Status, Party Name
+
+User Roles
+
+Admin: Full Access
+
+Clerk: Add/Edit Cases
+
+Viewer: Read-only
+
+Upload Documents
+
+PDFs, Notices, Court Orders
+
+Audit Trail / Logs
+
+Who updated what and when

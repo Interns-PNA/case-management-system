@@ -1,0 +1,92 @@
+// ✅ SubjectMattersList.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import AddSubjectModal from './AddSubjectModal';
+import EditSubjectModal from './EditSubjectModal';
+
+const SubjectMattersList = () => {
+  const [subjects, setSubjects] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editSubject, setEditSubject] = useState(null);
+
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/subject-matter");
+      setSubjects(res.data);
+    } catch (err) {
+      console.error("Error fetching subject matters:", err);
+    }
+  };
+
+  const handleAddSubject = async (newSubject) => {
+    try {
+      await axios.post("http://localhost:5000/api/subject-matter", newSubject);
+      fetchSubjects();
+      setShowAddModal(false);
+    } catch (err) {
+      console.error("Error adding subject matter:", err);
+    }
+  };
+
+  const handleUpdateSubject = async (updatedSubject) => {
+    try {
+      await axios.put(`http://localhost:5000/api/subject-matter/${updatedSubject._id}`, updatedSubject);
+      fetchSubjects();
+      setEditSubject(null);
+    } catch (err) {
+      console.error("Error updating subject matter:", err);
+    }
+  };
+
+  const handleDeleteSubject = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/subject-matter/${id}`);
+      fetchSubjects();
+    } catch (err) {
+      console.error("Error deleting subject matter:", err);
+    }
+  };
+
+  return (
+    <div className="courts-list">
+      <div className="courts-header">
+        <h2>Subject Matters</h2>
+        <button onClick={() => setShowAddModal(true)} className="btn-add">Add Subject</button>
+      </div>
+
+      <div className="courts-table">
+        <div className="courts-table-header">
+          <span>S.No</span>
+          <span style={{ flex: 2 }}>Name</span>
+          <span>Cases</span>
+          <span>Actions</span>
+        </div>
+        {subjects.map((subject, index) => (
+          <div className="courts-table-row" key={subject._id}>
+            <span>{index + 1}</span>
+            <span style={{ flex: 2 }}>{subject.name}</span>
+            <span>{subject.cases || 0}</span>
+            <span>
+              <button className="btn-edit" onClick={() => setEditSubject(subject)}>Edit</button>
+              <button className="btn-delete" onClick={() => handleDeleteSubject(subject._id)}>Delete</button>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {showAddModal && (
+        <AddSubjectModal onClose={() => setShowAddModal(false)} onSubmit={handleAddSubject} />
+      )}
+
+      {editSubject && (
+        <EditSubjectModal subject={editSubject} onClose={() => setEditSubject(null)} onUpdate={handleUpdateSubject} />
+      )}
+    </div>
+  );
+};
+
+export default SubjectMattersList;
