@@ -1,139 +1,177 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './CaseForm.css';
+import axios from 'axios';
 
 const CaseForm = ({ onCancel }) => {
+  const [formData, setFormData] = useState({
+    caseNo: '',
+    caseType: 'Normal',
+    caseTitle: '',
+    department: '',
+    fileNo: '',
+    revenue: '',
+    status: '',
+    court: '',
+    location: '',
+    bench: '',
+    judges: '',
+    subjectMatter: '',
+    totalJudges: '',
+    remarks: '',
+    hearingDate: '',
+    nextHearingDate: '',
+    focalPerson: '',
+    contact: '',
+    advocate: ''
+  });
+
+  const [courts, setCourts] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [judges, setJudges] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+
+  useEffect(() => {
+    fetchDropdownData();
+  }, []);
+
+  const fetchDropdownData = async () => {
+    try {
+      const [courtRes, locationRes, judgeRes, subjectRes] = await Promise.all([
+        axios.get('http://localhost:5000/api/courts'),
+        axios.get('http://localhost:5000/api/locations'),
+        axios.get('http://localhost:5000/api/judges'),
+        axios.get('http://localhost:5000/api/subject-matter'),
+      ]);
+      setCourts(courtRes.data);
+      setLocations(locationRes.data);
+      setJudges(judgeRes.data);
+      setSubjects(subjectRes.data);
+    } catch (error) {
+      console.error("Dropdown fetch failed:", error);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/cases', formData);
+      alert("Case submitted successfully!");
+      onCancel(); // to close the form
+    } catch (error) {
+      console.error('Submit failed:', error);
+      alert("Failed to submit case.");
+    }
+  };
+
   return (
     <div className="case-form-container">
-      <form className="case-form">
-        {/* CASE DETAILS SECTION */}
+      <form className="case-form" onSubmit={handleSubmit}>
         <fieldset>
           <legend>Case Details</legend>
 
           <div className="form-row">
-            <input type="text" placeholder="Case No *" required />
-            <select required>
+            <input type="text" placeholder="Case No *" name="caseNo" value={formData.caseNo} onChange={handleChange} required />
+            <select name="caseType" value={formData.caseType} onChange={handleChange} required>
               <option value="Normal">Normal</option>
               <option value="Urgent">Urgent</option>
             </select>
-            <input type="text" placeholder="Case Title *" required />
+            <input type="text" placeholder="Case Title *" name="caseTitle" value={formData.caseTitle} onChange={handleChange} required />
           </div>
 
           <div className="form-row">
-            <input type="text" placeholder="Ministry/Division/Department *" required />
+            <input type="text" placeholder="Ministry/Division/Department *" name="department" value={formData.department} onChange={handleChange} required />
           </div>
 
           <div className="form-row">
-            <input type="text" placeholder="File No" />
-            <input type="text" placeholder="Revenue (In Million)" />
-            <select required>
-              <option>Status *</option>
-              <option>Pending</option>
-              <option>Closed</option>
-              <option>In Progress</option>
+            <input type="text" placeholder="File No" name="fileNo" value={formData.fileNo} onChange={handleChange} />
+            <input type="text" placeholder="Revenue (In Million)" name="revenue" value={formData.revenue} onChange={handleChange} />
+            <select name="status" value={formData.status} onChange={handleChange} required>
+              <option value="">Status *</option>
+              <option value="Pending">Pending</option>
+              <option value="Closed">Closed</option>
+              <option value="In Progress">In Progress</option>
             </select>
           </div>
 
           <div className="form-row">
-<select required>
-  <option value="">Select Court</option>
-  <option value="Supreme Court of Pakistan">Supreme Court of Pakistan</option>
-  <option value="Islamabad High Court">Islamabad High Court</option>
-  <option value="Peshawar High Court">Peshawar High Court</option>
-  <option value="Lahore High Court">Lahore High Court</option>
-  <option value="Sindh High Court">Sindh High Court</option>
-  <option value="Pakistan Information Commission">Pakistan Information Commission</option>
-  <option value="Federal Service Tribunal">Federal Service Tribunal</option>
-  <option value="CIVIL Courts">CIVIL Courts</option>
-  <option value="District Court(South)">District Court(South)</option>
-</select>
+            <select name="court" value={formData.court} onChange={handleChange} required>
+              <option value="">Select Court</option>
+              {courts.map(c => (
+                <option key={c._id} value={c._id}>{c.name}</option>
+              ))}
+            </select>
 
-<select required>
-  <option value="">Select Location</option>
-  <option value="Karachi">Karachi</option>
-  <option value="Lahore">Lahore</option>
-  <option value="Islamabad">Islamabad</option>
-  <option value="Rawalpindi">Rawalpindi</option>
-  <option value="Peshawar">Peshawar</option>
-  <option value="Quetta">Quetta</option>
-  <option value="Sialkot">Sialkot</option>
-  <option value="Sukkur">Sukkur</option>
-  <option value="Hyderabad">Hyderabad</option>
-  <option value="Faisalabad">Faisalabad</option>
-  <option value="Multan">Multan</option>
-</select>
-            <select><option>Select Bench</option></select>
+            <select name="location" value={formData.location} onChange={handleChange} required>
+              <option value="">Select Location</option>
+              {locations.map(loc => (
+                <option key={loc._id} value={loc._id}>{loc.name}</option>
+              ))}
+            </select>
+
+            <select name="bench" value={formData.bench} onChange={handleChange}>
+              <option>Select Bench</option>
+              <option value="Bench A">Bench A</option>
+              <option value="Bench B">Bench B</option>
+            </select>
           </div>
-
-         <div className="form-row">
-  <div className="form-group">
-    <label htmlFor="selectJudges">Select Judges</label>
-    <input type="text" id="selectJudges" placeholder="Select Judges" required />
-  </div>
-
-  <div className="form-group">
-    <label htmlFor="subjectMatter">Subject Matter</label>
-    <select id="subjectMatter" required>
-      <option value="">Select Subject Matter</option>
-      <option value="Cases related to MNAs">Cases related to MNAs</option>
-      <option value="Cases related to Service matters">Cases related to Service matters</option>
-      <option value="Cases related to Special Committee on Affected Employees">
-        Cases related to Special Committee on Affected Employees
-      </option>
-      <option value="Cases related to the Public Accounts Committee">
-        Cases related to the Public Accounts Committee
-      </option>
-      <option value="Cases related to other Committees">Cases related to other Committees</option>
-      <option value="Appeals/Petitions related to the Right of Access to Information Act, 2017">
-        Appeals/Petitions related to the Right of Access to Information Act, 2017
-      </option>
-      <option value="Cases of Miscellaneous nature">Cases of Miscellaneous nature</option>
-      <option value="Cases in which either details are awaited or are on the Notice stage">
-        Cases in which either details are awaited or are on the Notice stage
-      </option>
-    </select>
-  </div>
-
-  <div className="form-group">
-    <label htmlFor="totalJudges">Total Judges</label>
-    <input type="text" id="totalJudges" placeholder="Total Judges" required />
-  </div>
-</div>
-
 
           <div className="form-row">
-            <textarea placeholder="Initial Remarks *" rows="3" required></textarea>
+            <select name="judges" value={formData.judges} onChange={handleChange} required>
+              <option value="">Select Judge</option>
+              {judges.map(j => (
+                <option key={j._id} value={j._id}>{j.name}</option>
+              ))}
+            </select>
+
+            <select name="subjectMatter" value={formData.subjectMatter} onChange={handleChange} required>
+              <option value="">Select Subject Matter</option>
+              {subjects.map(s => (
+                <option key={s._id} value={s._id}>{s.name}</option>
+              ))}
+            </select>
+
+            <input type="text" name="totalJudges" placeholder="Total Judges" value={formData.totalJudges} onChange={handleChange} required />
           </div>
 
-         <div className="form-row">
+          <div className="form-row">
+            <textarea placeholder="Initial Remarks *" rows="3" name="remarks" value={formData.remarks} onChange={handleChange} required></textarea>
+          </div>
+
+          <div className="form-row">
   <div className="form-group">
-    <label>Hearing Date</label>
-    <input type="date" />
+    <label htmlFor="hearingDate">Hearing Date</label>
+    <input type="date" id="hearingDate" name="hearingDate" value={formData.hearingDate} onChange={handleChange} />
   </div>
 
   <div className="form-group">
-    <label>Next Hearing Date</label>
-    <input type="date" />
+    <label htmlFor="nextHearingDate">Next Hearing Date</label>
+    <input type="date" id="nextHearingDate" name="nextHearingDate" value={formData.nextHearingDate} onChange={handleChange} />
   </div>
 
   <div className="form-group">
-    <label>Upload File</label>
-    <input type="file" />
+    <label htmlFor="caseFile">Upload File</label>
+    <input type="file" id="caseFile" />
   </div>
 </div>
+
+
 
         </fieldset>
 
-        {/* FOCAL PERSON SECTION */}
         <fieldset>
           <legend>Department's Focal Person & Advocate Details</legend>
           <div className="form-row">
-            <input type="text" placeholder="Focal Person Name" />
-            <input type="text" placeholder="Contact" />
-            <input type="text" placeholder="Advocate/Law Officer (if any)" />
+            <input type="text" name="focalPerson" placeholder="Focal Person Name" value={formData.focalPerson} onChange={handleChange} />
+            <input type="text" name="contact" placeholder="Contact" value={formData.contact} onChange={handleChange} />
+            <input type="text" name="advocate" placeholder="Advocate/Law Officer (if any)" value={formData.advocate} onChange={handleChange} />
           </div>
         </fieldset>
 
-        {/* BUTTONS */}
         <div className="form-row form-actions">
           <button type="button" className="cancel-btn" onClick={onCancel}>Cancel</button>
           <button type="submit" className="submit-btn">Submit</button>
