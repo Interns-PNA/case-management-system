@@ -9,6 +9,7 @@ import CourtsList from './components/CourtsList';
 import LocationsList from './components/LocationsList';
 import JudgesList from './components/JudgesList';
 import SubjectMatterList from './components/SubjectMattersList';
+import DepartmentsList from './components/DepartmentsList';
 
 import './App.css';
 
@@ -41,6 +42,8 @@ function App() {
             <Route path="/locations" element={<LocationsList />} />
             <Route path="/judges" element={<JudgesList />} />
             <Route path="/subject-matter" element={<SubjectMatterList />} />
+            <Route path="/departments" element={<DepartmentsList />} />
+
           </Routes>
         </div>
       </div>

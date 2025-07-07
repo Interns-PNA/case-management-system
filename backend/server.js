@@ -3,6 +3,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const subjectMatterRoutes = require("./routes/subjectMatters");
+const departmentRoutes = require('./routes/departmentRoutes');
+
 
 const app = express();
 dotenv.config();
@@ -18,6 +20,7 @@ app.use("/api/locations", require("./routes/locationRoutes")); // ✅ Added this
 app.use("/api/judges", require("./routes/judgeRoutes"));
 app.use("/api/summary", require("./routes/summary"));
 app.use("/api/subject-matter", subjectMatterRoutes); // path must match frontend
+app.use('/api/departments', departmentRoutes);
 
 
 // Add more routes as needed
