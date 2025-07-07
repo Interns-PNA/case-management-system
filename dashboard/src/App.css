@@ -325,7 +325,7 @@ body {
 .courts-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+ align-items: center;
   margin: 20px;
 }
 
@@ -505,5 +505,16 @@ body {
 .subject-table-row .btn-delete {
   margin-right: 8px;
   padding: 5px 10px;
+  font-size: 14px;
+}
+.search-bar {
+  margin-right: 10px;
+}
+
+.search-input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
   font-size: 14px;
 }

@@ -3,9 +3,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AddSubjectModal from './AddSubjectModal';
 import EditSubjectModal from './EditSubjectModal';
+import SearchBar from './SearchBar'; // ✅ Importing reusable search bar
 
 const SubjectMattersList = () => {
   const [subjects, setSubjects] = useState([]);
+  const [filteredSubjects, setFilteredSubjects] = useState([]); // ✅ State to store filtered list
+  const [searchTerm, setSearchTerm] = useState(''); // ✅ State to store search term
   const [showAddModal, setShowAddModal] = useState(false);
   const [editSubject, setEditSubject] = useState(null);
 
@@ -17,6 +20,7 @@ const SubjectMattersList = () => {
     try {
       const res = await axios.get("http://localhost:5000/api/subject-matter");
       setSubjects(res.data);
+      setFilteredSubjects(res.data); // ✅ Initialize filtered list
     } catch (err) {
       console.error("Error fetching subject matters:", err);
     }
@@ -51,10 +55,25 @@ const SubjectMattersList = () => {
     }
   };
 
+  // ✅ Filter logic
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    const filtered = subjects.filter((subject) =>
+      subject.name.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredSubjects(filtered);
+  };
+
   return (
     <div className="courts-list">
       <div className="courts-header">
         <h2>Subject Matters</h2>
+        {/* ✅ Reusable Search Bar Component */}
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          placeholder="Search subject matter..."
+        />
         <button onClick={() => setShowAddModal(true)} className="btn-add">Add Subject</button>
       </div>
 
@@ -65,7 +84,9 @@ const SubjectMattersList = () => {
           <span>Cases</span>
           <span>Actions</span>
         </div>
-        {subjects.map((subject, index) => (
+
+        {/* ✅ Using filteredSubjects instead of subjects */}
+        {filteredSubjects.map((subject, index) => (
           <div className="courts-table-row" key={subject._id}>
             <span>{index + 1}</span>
             <span style={{ flex: 2 }}>{subject.name}</span>
