@@ -2,9 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddLocationModal from "./AddLocationModal";
 import EditLocationModal from "./EditLocationModal";
+import SearchBar from "./SearchBar"; // ✅ Importing reusable SearchBar
 
 const LocationsList = () => {
   const [locations, setLocations] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]); // ✅ Filtered results
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ Search term
+
   const [showModal, setShowModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
@@ -17,6 +21,7 @@ const LocationsList = () => {
     try {
       const res = await axios.get("http://localhost:5000/api/locations");
       setLocations(res.data);
+      setFilteredLocations(res.data); // ✅ initialize filtered list
     } catch (err) {
       console.error("Error fetching locations:", err);
     }
@@ -61,10 +66,27 @@ const LocationsList = () => {
     }
   };
 
+  // ✅ Search handler
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    const filtered = locations.filter((loc) =>
+      loc.name.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredLocations(filtered);
+  };
+
   return (
     <div className="courts-list">
       <div className="courts-header">
         <h2>Locations</h2>
+
+        {/* ✅ SearchBar Component before Add Button */}
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          placeholder="Search Locations..."
+        />
+
         <button onClick={() => setShowModal(true)} className="btn-add">
           Add Location
         </button>
@@ -76,35 +98,28 @@ const LocationsList = () => {
           <span>Location Name</span>
           <span>Actions</span>
         </div>
-        {locations.length === 0 ? (
-          <div
-            className="courts-table-row"
-            style={{ textAlign: "center", color: "#888" }}
-          >
-            <span colSpan={3}>No locations found.</span>
+
+        {/* ✅ Use filteredLocations instead of locations */}
+        {filteredLocations.map((loc, index) => (
+          <div className="courts-table-row" key={index}>
+            <span>{index + 1}</span>
+            <span>{loc.name}</span>
+            <span>
+              <button
+                className="btn-edit"
+                onClick={() => handleEditLocation(loc)}
+              >
+                Edit
+              </button>
+              <button
+                className="btn-delete"
+                onClick={() => handleDeleteLocation(loc._id)}
+              >
+                Delete
+              </button>
+            </span>
           </div>
-        ) : (
-          locations.map((loc, index) => (
-            <div className="courts-table-row" key={loc._id}>
-              <span>{index + 1}</span>
-              <span>{loc.name}</span>
-              <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => handleEditLocation(loc)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteLocation(loc._id)}
-                >
-                  Delete
-                </button>
-              </span>
-            </div>
-          ))
-        )}
+        ))}
       </div>
 
       {showModal && (
