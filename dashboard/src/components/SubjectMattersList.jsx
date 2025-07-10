@@ -1,14 +1,14 @@
 // ✅ SubjectMattersList.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AddSubjectModal from './AddSubjectModal';
-import EditSubjectModal from './EditSubjectModal';
-import SearchBar from './SearchBar'; // ✅ Importing reusable search bar
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AddSubjectModal from "./AddSubjectModal";
+import EditSubjectModal from "./EditSubjectModal";
+import SearchBar from "./SearchBar"; // ✅ Importing reusable search bar
 
 const SubjectMattersList = () => {
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]); // ✅ State to store filtered list
-  const [searchTerm, setSearchTerm] = useState(''); // ✅ State to store search term
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ State to store search term
   const [showAddModal, setShowAddModal] = useState(false);
   const [editSubject, setEditSubject] = useState(null);
 
@@ -38,7 +38,10 @@ const SubjectMattersList = () => {
 
   const handleUpdateSubject = async (updatedSubject) => {
     try {
-      await axios.put(`http://localhost:5000/api/subject-matter/${updatedSubject._id}`, updatedSubject);
+      await axios.put(
+        `http://localhost:5000/api/subject-matter/${updatedSubject._id}`,
+        updatedSubject
+      );
       fetchSubjects();
       setEditSubject(null);
     } catch (err) {
@@ -74,37 +77,61 @@ const SubjectMattersList = () => {
           onSearch={handleSearch}
           placeholder="Search subject matter..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">Add Subject</button>
+        <button onClick={() => setShowAddModal(true)} className="btn-add">
+          Add Subject
+        </button>
       </div>
 
       <div className="courts-table">
         <div className="courts-table-header">
           <span>S.No</span>
-          <span style={{ flex: 2 }}>Name</span>
-          <span>Cases</span>
+          <span>Subject Matter</span>
           <span>Actions</span>
         </div>
-
-        {/* ✅ Using filteredSubjects instead of subjects */}
-        {filteredSubjects.map((subject, index) => (
-          <div className="courts-table-row" key={subject._id}>
-            <span>{index + 1}</span>
-            <span style={{ flex: 2 }}>{subject.name}</span>
-            <span>{subject.cases || 0}</span>
-            <span>
-              <button className="btn-edit" onClick={() => setEditSubject(subject)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteSubject(subject._id)}>Delete</button>
-            </span>
+        {filteredSubjects.length === 0 ? (
+          <div
+            className="courts-table-row"
+            style={{ textAlign: "center", color: "#888" }}
+          >
+            <span colSpan={3}>No subject matters found.</span>
           </div>
-        ))}
+        ) : (
+          filteredSubjects.map((subject, index) => (
+            <div className="courts-table-row" key={subject._id}>
+              <span>{index + 1}</span>
+              <span>{subject.name}</span>
+              <span>
+                <button
+                  className="btn-edit"
+                  onClick={() => setEditSubject(subject)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDeleteSubject(subject._id)}
+                >
+                  Delete
+                </button>
+              </span>
+            </div>
+          ))
+        )}
       </div>
 
       {showAddModal && (
-        <AddSubjectModal onClose={() => setShowAddModal(false)} onSubmit={handleAddSubject} />
+        <AddSubjectModal
+          onClose={() => setShowAddModal(false)}
+          onSubmit={handleAddSubject}
+        />
       )}
 
       {editSubject && (
-        <EditSubjectModal subject={editSubject} onClose={() => setEditSubject(null)} onUpdate={handleUpdateSubject} />
+        <EditSubjectModal
+          subject={editSubject}
+          onClose={() => setEditSubject(null)}
+          onUpdate={handleUpdateSubject}
+        />
       )}
     </div>
   );

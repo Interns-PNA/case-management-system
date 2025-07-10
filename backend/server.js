@@ -12,13 +12,14 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+
 app.use("/api/cases", require("./routes/caseRoutes"));
 app.use("/api/courts", require("./routes/courtRoutes"));
-app.use("/api/locations", require("./routes/locationRoutes")); // ✅ Added this line
+app.use("/api/locations", require("./routes/locationRoutes"));
 app.use("/api/judges", require("./routes/judgeRoutes"));
+app.use("/api/benches", require("./routes/benchRoutes"));
 app.use("/api/summary", require("./routes/summary"));
 app.use("/api/subject-matter", subjectMatterRoutes); // path must match frontend
-
 
 // Add more routes as needed
 

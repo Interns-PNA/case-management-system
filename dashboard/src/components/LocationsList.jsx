@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import AddLocationModal from './AddLocationModal';
-import EditLocationModal from './EditLocationModal';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import AddLocationModal from "./AddLocationModal";
+import EditLocationModal from "./EditLocationModal";
 
 const LocationsList = () => {
   const [locations, setLocations] = useState([]);
@@ -39,7 +39,10 @@ const LocationsList = () => {
 
   const handleUpdateLocation = async (updatedLocation) => {
     try {
-      await axios.put(`http://localhost:5000/api/locations/${updatedLocation._id}`, updatedLocation);
+      await axios.put(
+        `http://localhost:5000/api/locations/${updatedLocation._id}`,
+        updatedLocation
+      );
       fetchLocations();
       setEditModalOpen(false);
     } catch (err) {
@@ -62,25 +65,46 @@ const LocationsList = () => {
     <div className="courts-list">
       <div className="courts-header">
         <h2>Locations</h2>
-        <button onClick={() => setShowModal(true)} className="btn-add">Add Location</button>
+        <button onClick={() => setShowModal(true)} className="btn-add">
+          Add Location
+        </button>
       </div>
 
       <div className="courts-table">
         <div className="courts-table-header">
           <span>S.No</span>
-          <span>Name</span>
+          <span>Location Name</span>
           <span>Actions</span>
         </div>
-        {locations.map((loc, index) => (
-          <div className="courts-table-row" key={index}>
-            <span>{index + 1}</span>
-            <span>{loc.name}</span>
-            <span>
-              <button className="btn-edit" onClick={() => handleEditLocation(loc)}>Edit</button>
-              <button className="btn-delete" onClick={() => handleDeleteLocation(loc._id)}>Delete</button>
-            </span>
+        {locations.length === 0 ? (
+          <div
+            className="courts-table-row"
+            style={{ textAlign: "center", color: "#888" }}
+          >
+            <span colSpan={3}>No locations found.</span>
           </div>
-        ))}
+        ) : (
+          locations.map((loc, index) => (
+            <div className="courts-table-row" key={loc._id}>
+              <span>{index + 1}</span>
+              <span>{loc.name}</span>
+              <span>
+                <button
+                  className="btn-edit"
+                  onClick={() => handleEditLocation(loc)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDeleteLocation(loc._id)}
+                >
+                  Delete
+                </button>
+              </span>
+            </div>
+          ))
+        )}
       </div>
 
       {showModal && (
