@@ -2,8 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const mongoose = require("mongoose");
 const subjectMatterRoutes = require("./routes/subjectMatters");
 const departmentRoutes = require('./routes/departmentRoutes');
+const designationRoutes = require("./routes/designations");
+const statusRoutes = require("./routes/statusRoutes");
 
 
 const app = express();
@@ -23,6 +26,8 @@ app.use("/api/benches", require("./routes/benchRoutes"));
 app.use("/api/summary", require("./routes/summary"));
 app.use("/api/subject-matter", subjectMatterRoutes); // path must match frontend
 app.use('/api/departments', departmentRoutes);
+app.use("/api/designations", designationRoutes);
+app.use("/api/statuses", statusRoutes);
 
 // Add more routes as needed
 
