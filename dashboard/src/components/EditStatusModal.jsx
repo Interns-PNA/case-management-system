@@ -1,35 +1,36 @@
-import "../App.css";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const EditStatusModal = ({ status, onClose, onUpdate }) => {
-  const [name, setName] = useState(status.name || "");
+  const [name, setName] = useState("");
 
-  const handleSubmit = () => {
-    if (!name.trim()) {
-      alert("Status name is required.");
-      return;
+  useEffect(() => {
+    if (status) {
+      setName(status.name);
     }
+  }, [status]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
     onUpdate({ ...status, name });
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
+    <div className="modal">
+      <div className="modal-content">
         <h3>Edit Status</h3>
-        <input
-          type="text"
-          placeholder="Status Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <div className="modal-actions">
-          <button onClick={handleSubmit} className="btn-submit">
-            Update
-          </button>
-          <button onClick={onClose} className="btn-cancel">
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <button type="submit">Update</button>
+          <button type="button" onClick={onClose}>
             Cancel
           </button>
-        </div>
+        </form>
       </div>
     </div>
   );

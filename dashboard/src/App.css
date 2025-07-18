@@ -568,3 +568,53 @@ body {
   margin-left: 8px;
   cursor: pointer;
 }
+/* === Designations Table Layout === */
+.designations-table {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.designations-table-header,
+.designations-table-row {
+  display: grid;
+  grid-template-columns: 80px 2fr 1.5fr 2.5fr 180px; /* S.No, Name, Detail, Department, Actions */
+  padding: 10px 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 16px;
+  align-items: center;
+}
+
+.designations-table-header {
+  font-weight: bold;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.designations-table-row span {
+  overflow-wrap: anywhere;
+}
+
+/* Button styling consistent with other sections */
+.designations-table-row .btn-edit {
+  background-color: #ffc107;
+  color: #000;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.designations-table-row .btn-delete {
+  background-color: #dc3545;
+  color: white;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  margin-left: 8px;
+  cursor: pointer;
+}

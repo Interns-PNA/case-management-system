@@ -29,6 +29,9 @@ const CaseForm = ({ onCancel }) => {
   const [locations, setLocations] = useState([]);
   const [judges, setJudges] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [statuses, setStatuses] = useState([]);
+  const [benches, setBenches] = useState([]);
+  const [department, setDepartment] = useState([]);
 
   useEffect(() => {
     fetchDropdownData();
@@ -36,16 +39,22 @@ const CaseForm = ({ onCancel }) => {
 
   const fetchDropdownData = async () => {
     try {
-      const [courtRes, locationRes, judgeRes, subjectRes] = await Promise.all([
+      const [courtRes, locationRes, judgeRes, subjectRes, statusesRes, benchesRes, departmentRes] = await Promise.all([
         axios.get('http://localhost:5000/api/courts'),
         axios.get('http://localhost:5000/api/locations'),
         axios.get('http://localhost:5000/api/judges'),
         axios.get('http://localhost:5000/api/subject-matter'),
+        axios.get('http://localhost:5000/api/statuses'),
+        axios.get('http://localhost:5000/api/benches'),
+        axios.get('http://localhost:5000/api/departments') // Assuming you have a department endpoint
       ]);
       setCourts(courtRes.data);
       setLocations(locationRes.data);
       setJudges(judgeRes.data);
       setSubjects(subjectRes.data);
+      setStatuses(statusesRes.data);
+      setBenches(benchesRes.data);
+      setDepartment(departmentRes.data);
     } catch (error) {
       console.error("Dropdown fetch failed:", error);
     }
@@ -84,7 +93,13 @@ const CaseForm = ({ onCancel }) => {
           </div>
 
           <div className="form-row">
-            <input type="text" placeholder="Ministry/Division/Department *" name="department" value={formData.department} onChange={handleChange} required />
+                <select name="Department" value={formData.caseTitle} onChange={handleChange} required>
+              <option value="">Select Ministry/Division/Department*</option>
+            {department.map(dep => (
+                <option key={dep._id} value={dep._id}>{dep.name}</option>
+            ))} 
+            </select>
+          
           </div>
 
           <div className="form-row">
@@ -92,9 +107,9 @@ const CaseForm = ({ onCancel }) => {
             <input type="text" placeholder="Revenue (In Million)" name="revenue" value={formData.revenue} onChange={handleChange} />
             <select name="status" value={formData.status} onChange={handleChange} required>
               <option value="">Status *</option>
-              <option value="Pending">Pending</option>
-              <option value="Closed">Closed</option>
-              <option value="In Progress">In Progress</option>
+              {statuses.map(status => (
+    <option key={status._id} value={status._id}>{status.name}</option>
+  ))}
             </select>
           </div>
 
@@ -115,8 +130,9 @@ const CaseForm = ({ onCancel }) => {
 
             <select name="bench" value={formData.bench} onChange={handleChange}>
               <option>Select Bench</option>
-              <option value="Bench A">Bench A</option>
-              <option value="Bench B">Bench B</option>
+              {benches.map(b => (
+                <option key={b._id} value={b._id}>{b.name}</option>
+              ))}
             </select>
           </div>
 

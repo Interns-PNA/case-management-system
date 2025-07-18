@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddBenchesModal from "./AddBenchesModal";
+import EditBenchesModal from "./EditBenchesModal";
 import SearchBar from "./SearchBar";
 
 const BenchesList = () => {
   const [benches, setBenches] = useState([]);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [filteredBenches, setFilteredBenches] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editBench, setEditBench] = useState(null);
 
   useEffect(() => {
     fetchBenches();
@@ -33,6 +35,16 @@ const BenchesList = () => {
     }
   };
 
+  const handleUpdateBench = async (updatedBench) => {
+    try {
+      await axios.put(`http://localhost:5000/api/benches/${updatedBench._id}`, updatedBench);
+      fetchBenches();
+      setEditBench(null);
+    } catch (err) {
+      console.error("Error updating bench:", err);
+    }
+  };
+
   const handleDeleteBench = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/benches/${id}`);
@@ -44,15 +56,14 @@ const BenchesList = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    const filtered = benches.filter(
-      (bench) =>
-        bench.name.toLowerCase().includes(term.toLowerCase()) ||
-        (Array.isArray(bench.courts) &&
-          bench.courts.some((court) =>
-            typeof court === "object"
-              ? court.name.toLowerCase().includes(term.toLowerCase())
-              : court.toLowerCase().includes(term.toLowerCase())
-          ))
+    const filtered = benches.filter((bench) =>
+      bench.name.toLowerCase().includes(term.toLowerCase()) ||
+      (Array.isArray(bench.courts) &&
+        bench.courts.some((court) =>
+          typeof court === "object"
+            ? court.name.toLowerCase().includes(term.toLowerCase())
+            : court.toLowerCase().includes(term.toLowerCase())
+        ))
     );
     setFilteredBenches(filtered);
   };
@@ -72,6 +83,7 @@ const BenchesList = () => {
           </button>
         </div>
       </div>
+
       <div className="courts-table">
         <div className="courts-table-header">
           <span>S.No</span>
@@ -79,11 +91,9 @@ const BenchesList = () => {
           <span>Courts</span>
           <span>Actions</span>
         </div>
+
         {filteredBenches.length === 0 ? (
-          <div
-            className="courts-table-row"
-            style={{ textAlign: "center", color: "#888" }}
-          >
+          <div className="courts-table-row" style={{ textAlign: "center", color: "#888" }}>
             <span colSpan={4}>No benches found.</span>
           </div>
         ) : (
@@ -108,6 +118,12 @@ const BenchesList = () => {
               </span>
               <span>
                 <button
+                  className="btn-edit"
+                  onClick={() => setEditBench(bench)}
+                >
+                  Edit
+                </button>
+                <button
                   className="btn-delete"
                   onClick={() => handleDeleteBench(bench._id)}
                 >
@@ -118,10 +134,19 @@ const BenchesList = () => {
           ))
         )}
       </div>
+
       {showAddModal && (
         <AddBenchesModal
           onClose={() => setShowAddModal(false)}
           onSubmit={handleAddBench}
+        />
+      )}
+
+      {editBench && (
+        <EditBenchesModal
+          bench={editBench}
+          onClose={() => setEditBench(null)}
+          onUpdate={handleUpdateBench}
         />
       )}
     </div>

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddStatusModal from "./AddStatusModal";
 import EditStatusModal from "./EditStatusModal";
+import SearchBar from "../components/SearchBar"; // ✅ Ensure correct path
 
 const StatusList = () => {
   const [statuses, setStatuses] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editStatus, setEditStatus] = useState(null);
 
@@ -53,29 +55,38 @@ const StatusList = () => {
     }
   };
 
+  // ✅ Filtering logic works on searchTerm
+  const filteredStatuses = statuses.filter((status) =>
+    status.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="benches-list">
+    <div className="courts-list">
       <div className="courts-header">
-        <h2>Statuses</h2>
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
+        <h2>Status List</h2>
+        <button className="btn-add" onClick={() => setShowAddModal(true)}>
           Add Status
         </button>
       </div>
+
+      {/* ✅ Use shared SearchBar component */}
+      <SearchBar
+        placeholder="Search status..."
+        onSearch={(value) => setSearchTerm(value)}
+      />
+
       <div className="courts-table">
         <div className="courts-table-header">
           <span>S.No</span>
           <span>Status Name</span>
           <span>Actions</span>
         </div>
-        {statuses.length === 0 ? (
-          <div
-            className="courts-table-row"
-            style={{ textAlign: "center", color: "#888" }}
-          >
-            <span colSpan={3}>No statuses found.</span>
+        {filteredStatuses.length === 0 ? (
+          <div className="courts-table-row" style={{ textAlign: "center" }}>
+            No status found.
           </div>
         ) : (
-          statuses.map((status, index) => (
+          filteredStatuses.map((status, index) => (
             <div className="courts-table-row" key={status._id}>
               <span>{index + 1}</span>
               <span>{status.name}</span>
@@ -97,6 +108,7 @@ const StatusList = () => {
           ))
         )}
       </div>
+
       {showAddModal && (
         <AddStatusModal
           onClose={() => setShowAddModal(false)}

@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddDesignationModal from "./AddDesignationModal";
 import EditDesignationModal from "./EditDesignationModal";
+import SearchBar from "./SearchBar"; // ✅ Reusable search bar
 
 const DesignationsList = () => {
   const [designations, setDesignations] = useState([]);
+  const [filteredDesignations, setFilteredDesignations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editDesignation, setEditDesignation] = useState(null);
 
@@ -16,17 +19,25 @@ const DesignationsList = () => {
     try {
       const res = await axios.get("http://localhost:5000/api/designations");
       setDesignations(res.data);
+      setFilteredDesignations(res.data);
     } catch (err) {
       console.error("Error fetching designations:", err);
     }
   };
 
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    const filtered = designations.filter((d) =>
+      d.name?.toLowerCase().includes(term.toLowerCase()) ||
+      d.details?.toLowerCase().includes(term.toLowerCase()) ||
+      d.department?.name?.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredDesignations(filtered);
+  };
+
   const handleAddDesignation = async (newDesignation) => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/designations",
-        newDesignation
-      );
+      await axios.post("http://localhost:5000/api/designations", newDesignation);
       fetchDesignations();
       setShowAddModal(false);
     } catch (err) {
@@ -57,31 +68,44 @@ const DesignationsList = () => {
   };
 
   return (
-    <div className="benches-list">
+    <div className="designations-table">
       <div className="courts-header">
         <h2>Designations</h2>
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Designation
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <SearchBar
+            searchTerm={searchTerm}
+            onSearch={handleSearch}
+            placeholder="Search designations..."
+          />
+          <button onClick={() => setShowAddModal(true)} className="btn-add">
+            Add Designation
+          </button>
+        </div>
       </div>
-      <div className="courts-table">
-        <div className="courts-table-header">
+
+      <div className="designations-table-content">
+        <div className="designations-table-header">
           <span>S.No</span>
-          <span>Designation Name</span>
+          <span>Name</span>
+          <span>Details</span>
+          <span>Department</span>
           <span>Actions</span>
         </div>
-        {designations.length === 0 ? (
+
+        {filteredDesignations.length === 0 ? (
           <div
-            className="courts-table-row"
+            className="designations-table-row"
             style={{ textAlign: "center", color: "#888" }}
           >
-            <span colSpan={3}>No designations found.</span>
+            <span>No designations found.</span>
           </div>
         ) : (
-          designations.map((designation, index) => (
-            <div className="courts-table-row" key={designation._id}>
+          filteredDesignations.map((designation, index) => (
+            <div className="designations-table-row" key={designation._id}>
               <span>{index + 1}</span>
               <span>{designation.name}</span>
+              <span>{designation.details || "–"}</span>
+              <span>{designation.department?.name || "–"}</span>
               <span>
                 <button
                   className="btn-edit"
@@ -100,12 +124,14 @@ const DesignationsList = () => {
           ))
         )}
       </div>
+
       {showAddModal && (
         <AddDesignationModal
           onClose={() => setShowAddModal(false)}
           onSubmit={handleAddDesignation}
         />
       )}
+
       {editDesignation && (
         <EditDesignationModal
           designation={editDesignation}
