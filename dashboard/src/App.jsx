@@ -22,11 +22,7 @@ import "./App.css";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
-  const handleCancel = () => {
-    setShowForm(false);
-  };
 
   return (
     <Router>
@@ -40,10 +36,6 @@ function App() {
             toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
             onAddCaseClick={() => setShowForm(true)}
           />
-
-          {/* CaseForm is shown globally over any page */}
-          {showForm && <CaseForm onCancel={handleCancel} />}
-
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -56,6 +48,8 @@ function App() {
             <Route path="/statuses" element={<StatusList />} />
             <Route path="/designations" element={<DesignationsList />} />
             <Route path="/departments" element={<DepartmentsList />} />
+            <Route path="/form" element={<CaseForm />} />
+
           </Routes>
         </div>
       </div>

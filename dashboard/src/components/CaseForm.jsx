@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './CaseForm.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const CaseForm = ({ onCancel }) => {
+
+const CaseForm = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     caseNo: '',
-    caseType: 'Normal',
+    caseType: '',
     caseTitle: '',
     department: '',
     fileNo: '',
@@ -86,6 +90,7 @@ const CaseForm = ({ onCancel }) => {
           <div className="form-row">
             <input type="text" placeholder="Case No *" name="caseNo" value={formData.caseNo} onChange={handleChange} required />
             <select name="caseType" value={formData.caseType} onChange={handleChange} required>
+              <option value="">Case type *</option>
               <option value="Normal">Normal</option>
               <option value="Urgent">Urgent</option>
             </select>
@@ -189,7 +194,7 @@ const CaseForm = ({ onCancel }) => {
         </fieldset>
 
         <div className="form-row form-actions">
-          <button type="button" className="cancel-btn" onClick={onCancel}>Cancel</button>
+          <button type="button" className="cancel-btn" onClick={() => navigate('/dashboard')}>Cancel</button>
           <button type="submit" className="submit-btn">Submit</button>
         </div>
       </form>
