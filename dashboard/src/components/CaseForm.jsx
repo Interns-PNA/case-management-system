@@ -98,7 +98,7 @@ const CaseForm = () => {
           </div>
 
           <div className="form-row">
-                <select name="Department" value={formData.caseTitle} onChange={handleChange} required>
+                <select name="department" value={formData.department} onChange={handleChange} required>
               <option value="">Select Ministry/Division/Department*</option>
             {department.map(dep => (
                 <option key={dep._id} value={dep._id}>{dep.name}</option>

@@ -10,8 +10,8 @@ const AddStatusModal = ({ onClose, onSubmit }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
+    <div className="modal-overlay">
+      <div className="modal">
         <h3>Add Status</h3>
         <form onSubmit={handleSubmit}>
           <input
@@ -21,10 +21,11 @@ const AddStatusModal = ({ onClose, onSubmit }) => {
             onChange={(e) => setName(e.target.value)}
             required
           />
-          <button type="submit">Add</button>
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
+
+          <div className="modal-actions">
+          <button onClick={handleSubmit} className="btn-submit">Submit</button>
+          <button onClick={onClose} className="btn-cancel">Cancel</button>
+           </div>
         </form>
       </div>
     </div>
