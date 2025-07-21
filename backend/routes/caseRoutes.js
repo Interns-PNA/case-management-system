@@ -21,4 +21,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const foundCase = await Case.findById(req.params.id).populate(
+      "court judges subjectMatter"
+    );
+    if (!foundCase) return res.status(404).json({ error: "Case not found" });
+    res.json(foundCase);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

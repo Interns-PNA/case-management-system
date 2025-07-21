@@ -18,11 +18,11 @@ import BenchesList from "./components/BenchesList";
 import StatusList from "./components/StatusList";
 import DesignationsList from "./components/DesignationsList";
 import DepartmentsList from "./components/DepartmentsList";
+import CasesList from "./components/CasesList";
 import "./App.css";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
 
   return (
     <Router>
@@ -39,7 +39,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/cases" element={<Dashboard />} />
+            <Route path="/cases" element={<CasesList />} />
             <Route path="/courts" element={<CourtsList />} />
             <Route path="/benches" element={<BenchesList />} />
             <Route path="/locations" element={<LocationsList />} />
@@ -49,7 +49,6 @@ function App() {
             <Route path="/designations" element={<DesignationsList />} />
             <Route path="/departments" element={<DepartmentsList />} />
             <Route path="/form" element={<CaseForm />} />
-
           </Routes>
         </div>
       </div>
