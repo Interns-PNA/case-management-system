@@ -8,11 +8,12 @@ const caseSchema = new mongoose.Schema({
   fileNo: String,
   revenue: Number,
   status: String,
-  court: { type: mongoose.Schema.Types.ObjectId, ref: 'Court' },
+  court: { type: mongoose.Schema.Types.ObjectId, ref: "Court" },
+  location: { type: mongoose.Schema.Types.ObjectId, ref: "Location" },
   bench: String,
-  judges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Judge' }],
+  judges: [{ type: mongoose.Schema.Types.ObjectId, ref: "Judge" }],
   totalJudges: Number,
-  subjectMatter: { type: mongoose.Schema.Types.ObjectId, ref: 'SubjectMatter' },
+  subjectMatter: { type: mongoose.Schema.Types.ObjectId, ref: "SubjectMatter" },
   initialRemarks: String,
   hearingDate: Date,
   nextHearingDate: Date,
@@ -21,7 +22,7 @@ const caseSchema = new mongoose.Schema({
   contact: String,
   lawOfficer: String,
   cmApplications: [String],
-  tasks: [String]
+  tasks: [String],
 });
 
 module.exports = mongoose.model("Case", caseSchema);

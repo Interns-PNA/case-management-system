@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./CaseForm.css";
 import axios from "axios";
 
@@ -31,16 +32,28 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const data = isControlled ? formData : localFormData;
   const setData = isControlled ? setFormData : setLocalFormData;
 
+  const navigate = useNavigate();
+
   const [courts, setCourts] = useState([]);
   const [locations, setLocations] = useState([]);
   const [judges, setJudges] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [departments, setDepartments] = useState([]);
+  const [benches, setBenches] = useState([]);
 
   useEffect(() => {
     fetchDropdownData();
     fetchDepartments();
+    fetchBenches();
   }, []);
+  const fetchBenches = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/benches");
+      setBenches(res.data);
+    } catch (error) {
+      console.error("Bench fetch failed:", error);
+    }
+  };
 
   const fetchDropdownData = async () => {
     try {
@@ -75,22 +88,53 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prepare data for backend
+    let submitData = { ...data };
+    // Map department to ministry
+    submitData.ministry = data.department;
+    delete submitData.department;
+    // Map remarks to initialRemarks
+    submitData.initialRemarks = data.remarks;
+    delete submitData.remarks;
+    // Judges: always send as array of ObjectId(s)
+    if (submitData.judges && !Array.isArray(submitData.judges)) {
+      submitData.judges = [submitData.judges];
+    }
+    // Convert totalJudges and revenue to numbers if present
+    if (submitData.totalJudges)
+      submitData.totalJudges = Number(submitData.totalJudges);
+    if (submitData.revenue) submitData.revenue = Number(submitData.revenue);
+    // Map advocate to lawOfficer
+    if (submitData.advocate) {
+      submitData.lawOfficer = submitData.advocate;
+      delete submitData.advocate;
+    }
+    // Map focalPerson to focalPersonName
+    if (submitData.focalPerson) {
+      submitData.focalPersonName = submitData.focalPerson;
+      delete submitData.focalPerson;
+    }
+    // Remove empty string fields
+    Object.keys(submitData).forEach((k) => {
+      if (submitData[k] === "") delete submitData[k];
+    });
     if (onSubmit) {
-      // Edit mode: delegate to parent
-      await onSubmit(e);
+      // Edit mode: delegate to parent, pass submitData
+      await onSubmit(e, submitData);
       return;
     }
     // Add mode: local submit
     try {
-      // Map department to ministry for backend
-      const submitData = { ...data, ministry: data.department };
-      delete submitData.department;
       await axios.post("http://localhost:5000/api/cases", submitData);
       alert("Case submitted successfully!");
-      onCancel(); // to close the form
+      if (onCancel) onCancel(); // to close the form
     } catch (error) {
       console.error("Submit failed:", error);
-      alert("Failed to submit case.");
+      if (error.response && error.response.data && error.response.data.error) {
+        alert("Failed to submit case: " + error.response.data.error);
+      } else {
+        alert("Failed to submit case.");
+      }
     }
   };
 
@@ -101,161 +145,221 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
           <legend>Case Details</legend>
 
           <div className="form-row">
-            <input
-              type="text"
-              placeholder="Case No *"
-              name="caseNo"
-              value={data.caseNo}
-              onChange={handleChange}
-              required
-            />
-            <select
-              name="caseType"
-              value={data.caseType}
-              onChange={handleChange}
-              required
-            >
-              <option value="Normal">Normal</option>
-              <option value="Urgent">Urgent</option>
-            </select>
-            <input
-              type="text"
-              placeholder="Case Title *"
-              name="caseTitle"
-              value={data.caseTitle}
-              onChange={handleChange}
-              required
-            />
+            <div className="form-group">
+              <label htmlFor="caseNo">Case No *</label>
+              <input
+                type="text"
+                id="caseNo"
+                placeholder="Case No *"
+                name="caseNo"
+                value={data.caseNo}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="caseType">Case Type *</label>
+              <select
+                id="caseType"
+                name="caseType"
+                value={data.caseType}
+                onChange={handleChange}
+                required
+              >
+                <option value="Normal">Normal</option>
+                <option value="Urgent">Urgent</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="caseTitle">Case Title *</label>
+              <input
+                type="text"
+                id="caseTitle"
+                placeholder="Case Title *"
+                name="caseTitle"
+                value={data.caseTitle}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-row">
-            <select
-              name="department"
-              value={data.department}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Ministry/Division/Department *</option>
-              {departments.map((dept) => (
-                <option key={dept._id} value={dept.name}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
+            <div className="form-group">
+              <label htmlFor="department">Ministry/Division/Department *</label>
+              <select
+                id="department"
+                name="department"
+                value={data.department}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Ministry/Division/Department *</option>
+                {departments.map((dept) => (
+                  <option key={dept._id} value={dept.name}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="form-row">
-            <input
-              type="text"
-              placeholder="File No"
-              name="fileNo"
-              value={data.fileNo}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              placeholder="Revenue (In Million)"
-              name="revenue"
-              value={data.revenue}
-              onChange={handleChange}
-            />
-            <select
-              name="status"
-              value={data.status}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Status *</option>
-              <option value="Pending">Pending</option>
-              <option value="Closed">Closed</option>
-              <option value="In Progress">In Progress</option>
-            </select>
+            <div className="form-group">
+              <label htmlFor="fileNo">File No</label>
+              <input
+                type="text"
+                id="fileNo"
+                placeholder="File No"
+                name="fileNo"
+                value={data.fileNo}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="revenue">Revenue (In Million)</label>
+              <input
+                type="text"
+                id="revenue"
+                placeholder="Revenue (In Million)"
+                name="revenue"
+                value={data.revenue}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="status">Status *</label>
+              <select
+                id="status"
+                name="status"
+                value={data.status}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Status *</option>
+                <option value="Pending">Pending</option>
+                <option value="Closed">Closed</option>
+                <option value="In Progress">In Progress</option>
+              </select>
+            </div>
           </div>
 
           <div className="form-row">
-            <select
-              name="court"
-              value={data.court}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Court</option>
-              {courts.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              name="location"
-              value={data.location}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Location</option>
-              {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
-
-            <select name="bench" value={data.bench} onChange={handleChange}>
-              <option>Select Bench</option>
-              <option value="Bench A">Bench A</option>
-              <option value="Bench B">Bench B</option>
-            </select>
+            <div className="form-group">
+              <label htmlFor="court">Court *</label>
+              <select
+                id="court"
+                name="court"
+                value={data.court}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Court</option>
+                {courts.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="location">Location *</label>
+              <select
+                id="location"
+                name="location"
+                value={data.location}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Location</option>
+                {locations.map((loc) => (
+                  <option key={loc._id} value={loc._id}>
+                    {loc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="bench">Bench *</label>
+              <select
+                id="bench"
+                name="bench"
+                value={data.bench}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Bench</option>
+                {benches.map((b) => (
+                  <option key={b._id} value={b._id || b.name}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="form-row">
-            <select
-              name="judges"
-              value={data.judges}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Judge</option>
-              {judges.map((j) => (
-                <option key={j._id} value={j._id}>
-                  {j.name}
-                </option>
-              ))}
-            </select>
-
-            <select
-              name="subjectMatter"
-              value={data.subjectMatter}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Subject Matter</option>
-              {subjects.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              name="totalJudges"
-              placeholder="Total Judges"
-              value={data.totalJudges}
-              onChange={handleChange}
-              required
-            />
+            <div className="form-group">
+              <label htmlFor="judges">Judge *</label>
+              <select
+                id="judges"
+                name="judges"
+                value={data.judges}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Judge</option>
+                {judges.map((j) => (
+                  <option key={j._id} value={j._id}>
+                    {j.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="subjectMatter">Subject Matter *</label>
+              <select
+                id="subjectMatter"
+                name="subjectMatter"
+                value={data.subjectMatter}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Subject Matter</option>
+                {subjects.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="totalJudges">Total Judges *</label>
+              <input
+                type="text"
+                id="totalJudges"
+                name="totalJudges"
+                placeholder="Total Judges"
+                value={data.totalJudges}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-row">
-            <textarea
-              placeholder="Initial Remarks *"
-              rows="3"
-              name="remarks"
-              value={data.remarks}
-              onChange={handleChange}
-              required
-            ></textarea>
+            <div className="form-group" style={{ width: "100%" }}>
+              <label htmlFor="remarks">Initial Remarks *</label>
+              <textarea
+                id="remarks"
+                placeholder="Initial Remarks *"
+                rows="3"
+                name="remarks"
+                value={data.remarks}
+                onChange={handleChange}
+                required
+              ></textarea>
+            </div>
           </div>
 
           <div className="form-row">
@@ -269,7 +373,6 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="nextHearingDate">Next Hearing Date</label>
               <input
@@ -280,7 +383,6 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 onChange={handleChange}
               />
             </div>
-
             <div className="form-group">
               <label htmlFor="caseFile">Upload File</label>
               <input type="file" id="caseFile" />
@@ -291,32 +393,54 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
         <fieldset>
           <legend>Departments Focal Person & Advocate Details</legend>
           <div className="form-row">
-            <input
-              type="text"
-              name="focalPerson"
-              placeholder="Focal Person Name"
-              value={data.focalPerson}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="contact"
-              placeholder="Contact"
-              value={data.contact}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="advocate"
-              placeholder="Advocate/Law Officer (if any)"
-              value={data.advocate}
-              onChange={handleChange}
-            />
+            <div className="form-group">
+              <label htmlFor="focalPerson">Focal Person Name</label>
+              <input
+                type="text"
+                id="focalPerson"
+                name="focalPerson"
+                placeholder="Focal Person Name"
+                value={data.focalPerson}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="contact">Contact</label>
+              <input
+                type="text"
+                id="contact"
+                name="contact"
+                placeholder="Contact"
+                value={data.contact}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="advocate">Advocate/Law Officer (if any)</label>
+              <input
+                type="text"
+                id="advocate"
+                name="advocate"
+                placeholder="Advocate/Law Officer (if any)"
+                value={data.advocate}
+                onChange={handleChange}
+              />
+            </div>
           </div>
         </fieldset>
 
         <div className="form-row form-actions">
-          <button type="button" className="cancel-btn" onClick={onCancel}>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={() => {
+              if (isEdit) {
+                if (onCancel) onCancel();
+              } else {
+                navigate("/dashboard");
+              }
+            }}
+          >
             Cancel
           </button>
           <button type="submit" className="submit-btn">

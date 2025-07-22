@@ -12,6 +12,7 @@ const CasesList = () => {
   const [editCase, setEditCase] = useState(null);
   const [editFormData, setEditFormData] = useState(null);
   const [statuses, setStatuses] = useState([]);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     fetchCases();
@@ -76,6 +77,11 @@ const CasesList = () => {
     if (window.confirm("Are you sure you want to delete this case?")) {
       try {
         await axios.delete(`http://localhost:5000/api/cases/${id}`);
+        // If the deleted case is being edited, close the edit modal
+        if (editCase && editCase._id === id) {
+          setEditCase(null);
+          setEditFormData(null);
+        }
         fetchCases();
       } catch (err) {
         console.error("Error deleting case:", err);
@@ -98,7 +104,7 @@ const CasesList = () => {
         caseNo: editCase.caseNo || "",
         caseType: editCase.caseType || "Normal",
         caseTitle: editCase.caseTitle || "",
-        department: editCase.ministry || "",
+        department: editCase.department || editCase.ministry || "",
         fileNo: editCase.fileNo || "",
         revenue: editCase.revenue || "",
         status:
@@ -110,7 +116,12 @@ const CasesList = () => {
             ? editCase.court._id
             : editCase.court || "",
         location:
-          typeof editCase.location === "object" && editCase.location?._id
+          Array.isArray(editCase.location) && editCase.location.length > 0
+            ? typeof editCase.location[0] === "object" &&
+              editCase.location[0]?._id
+              ? editCase.location[0]._id
+              : editCase.location[0]
+            : typeof editCase.location === "object" && editCase.location?._id
             ? editCase.location._id
             : editCase.location || "",
         bench: editCase.bench || "",
@@ -128,12 +139,12 @@ const CasesList = () => {
             ? editCase.subjectMatter._id
             : editCase.subjectMatter || "",
         totalJudges: editCase.totalJudges || "",
-        remarks: editCase.initialRemarks || "",
+        remarks: editCase.initialRemarks || editCase.remarks || "",
         hearingDate: formatDate(editCase.hearingDate),
         nextHearingDate: formatDate(editCase.nextHearingDate),
-        focalPerson: editCase.focalPersonName || "",
+        focalPerson: editCase.focalPersonName || editCase.focalPerson || "",
         contact: editCase.contact || "",
-        advocate: editCase.lawOfficer || "",
+        advocate: editCase.lawOfficer || editCase.advocate || "",
       });
     } else {
       setEditFormData(null);
@@ -148,10 +159,13 @@ const CasesList = () => {
           <CaseForm
             formData={editFormData}
             setFormData={setEditFormData}
-            onCancel={() => setEditCase(null)}
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await handleUpdateCase(editFormData);
+            onCancel={() => {
+              setEditCase(null);
+              setEditFormData(null);
+            }}
+            onSubmit={async (e, submitData) => {
+              // submitData is already mapped for backend
+              await handleUpdateCase(submitData);
             }}
             isEdit={true}
             key={editFormData._id || "edit-form"}
@@ -224,7 +238,7 @@ const CasesList = () => {
                       `http://localhost:5000/api/cases/${c._id}`
                     );
                     setEditCase(res.data);
-                  } catch (err) {
+                  } catch {
                     alert("Failed to fetch case details for editing.");
                   }
                 }}
