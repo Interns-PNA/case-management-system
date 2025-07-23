@@ -22,6 +22,8 @@ const Dashboard = () => {
     upcoming: 0,
     critical: 0,
     tasks: 0,
+    departments: 0,
+    designations: 0,
   });
 
   useEffect(() => {
@@ -44,6 +46,8 @@ const Dashboard = () => {
         upcoming: res.data.upcoming || 0,
         critical: res.data.critical || 0,
         tasks: res.data.tasks || 0,
+        departments: res.data.departments || 0,
+        designations: res.data.designations || 0,
       });
     } catch (error) {
       console.error("Error fetching summary counts:", error);
@@ -56,8 +60,18 @@ const Dashboard = () => {
     { label: "Closed", value: counts.closed, color: "green" },
     { label: "In Progress", value: counts.inProgress, color: "purple" },
     { label: "Upcoming Cases", value: counts.upcoming, color: "blue" },
-    { label: "Critical Cases", value: counts.critical, color: "purple" },
-    { label: "Upcoming Tasks", value: counts.tasks, color: "yellow" },
+    {
+      label: "Departments",
+      value: counts.departments,
+      color: "purple",
+      link: "/departments",
+    },
+    {
+      label: "Designations",
+      value: counts.designations,
+      color: "yellow",
+      link: "/designations",
+    },
     {
       label: "Total No Of Courts",
       value: counts.courts,

@@ -4,10 +4,9 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const mongoose = require("mongoose");
 const subjectMatterRoutes = require("./routes/subjectMatters");
-const departmentRoutes = require('./routes/departmentRoutes');
+const departmentRoutes = require("./routes/departmentRoutes");
 const designationRoutes = require("./routes/designations");
 const statusRoutes = require("./routes/statusRoutes");
-
 
 const app = express();
 dotenv.config();
@@ -23,9 +22,9 @@ app.use("/api/courts", require("./routes/courtRoutes"));
 app.use("/api/locations", require("./routes/locationRoutes"));
 app.use("/api/judges", require("./routes/judgeRoutes"));
 app.use("/api/benches", require("./routes/benchRoutes"));
-app.use("/api/summary", require("./routes/summary"));
+app.use("/api/summary", require("./routes/summaryRoutes"));
 app.use("/api/subject-matter", subjectMatterRoutes); // path must match frontend
-app.use('/api/departments', departmentRoutes);
+app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/statuses", statusRoutes);
 
