@@ -27,17 +27,21 @@ const DesignationsList = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    const filtered = designations.filter((d) =>
-      d.name?.toLowerCase().includes(term.toLowerCase()) ||
-      d.details?.toLowerCase().includes(term.toLowerCase()) ||
-      d.department?.name?.toLowerCase().includes(term.toLowerCase())
+    const filtered = designations.filter(
+      (d) =>
+        d.name?.toLowerCase().includes(term.toLowerCase()) ||
+        d.details?.toLowerCase().includes(term.toLowerCase()) ||
+        d.department?.name?.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredDesignations(filtered);
   };
 
   const handleAddDesignation = async (newDesignation) => {
     try {
-      await axios.post("http://localhost:5000/api/designations", newDesignation);
+      await axios.post(
+        "http://localhost:5000/api/designations",
+        newDesignation
+      );
       fetchDesignations();
       setShowAddModal(false);
     } catch (err) {
@@ -71,16 +75,14 @@ const DesignationsList = () => {
     <div className="designations-table">
       <div className="courts-header">
         <h2>Designations</h2>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <SearchBar
-            searchTerm={searchTerm}
-            onSearch={handleSearch}
-            placeholder="Search designations..."
-          />
-          <button onClick={() => setShowAddModal(true)} className="btn-add">
-            Add Designation
-          </button>
-        </div>
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          placeholder="Search designations..."
+        />
+        <button onClick={() => setShowAddModal(true)} className="btn-add">
+          Add Designation
+        </button>
       </div>
 
       <div className="designations-table-content">

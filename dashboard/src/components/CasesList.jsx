@@ -9,6 +9,33 @@ const CasesList = () => {
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Read ?search= param from URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const search = params.get("search");
+    if (search) {
+      setSearchTerm(search);
+      // Immediately filter cases if cases are already loaded
+      setFilteredCases(
+        cases.filter(
+          (c) =>
+            c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
+            (c.caseTitle &&
+              c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
+            (getStatusName(c.status) &&
+              getStatusName(c.status)
+                .toLowerCase()
+                .includes(search.toLowerCase())) ||
+            (c.ministry &&
+              c.ministry.toLowerCase().includes(search.toLowerCase())) ||
+            (c.subjectMatter &&
+              typeof c.subjectMatter === "string" &&
+              c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
+        )
+      );
+    }
+  }, [cases]);
   const [editCase, setEditCase] = useState(null);
   const [editFormData, setEditFormData] = useState(null);
   const [statuses, setStatuses] = useState([]);
@@ -492,7 +519,14 @@ const CasesList = () => {
                             </head>
                             <body>
                               <div class="a4">
-                                <div class="court-header">ISLAMABAD HIGH COURT</div>
+                                <div class="court-header">${
+                                  typeof viewCase.court === "object" &&
+                                  viewCase.court?.name
+                                    ? viewCase.court.name
+                                    : typeof viewCase.court === "string"
+                                    ? viewCase.court
+                                    : "Court"
+                                }</div>
                                 <table>
                                   <tr>
                                     <th>File No.</th>

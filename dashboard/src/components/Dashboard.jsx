@@ -61,9 +61,27 @@ const Dashboard = () => {
       color: "blue",
       link: "/cases",
     },
-    { label: "Pending", value: counts.pending, color: "yellow" },
-    { label: "Closed", value: counts.closed, color: "green" },
-    { label: "In Progress", value: counts.inProgress, color: "purple" },
+    {
+      label: "Pending",
+      value: counts.pending,
+      color: "yellow",
+      link: "/cases",
+      search: "Pending",
+    },
+    {
+      label: "Closed",
+      value: counts.closed,
+      color: "green",
+      link: "/cases",
+      search: "Closed",
+    },
+    {
+      label: "In Progress",
+      value: counts.inProgress,
+      color: "purple",
+      link: "/cases",
+      search: "In Progress",
+    },
     { label: "Upcoming Cases", value: counts.upcoming, color: "blue" },
     {
       label: "Departments",
@@ -160,17 +178,24 @@ const Dashboard = () => {
               </div>
             );
 
-            return card.link ? (
-              <Link
-                key={index}
-                to={card.link}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                {content}
-              </Link>
-            ) : (
-              <div key={index}>{content}</div>
-            );
+            if (card.link) {
+              return (
+                <Link
+                  key={index}
+                  to={
+                    card.link +
+                    (card.search
+                      ? `?search=${encodeURIComponent(card.search)}`
+                      : "")
+                  }
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  {content}
+                </Link>
+              );
+            } else {
+              return <div key={index}>{content}</div>;
+            }
           })}
         </div>
 

@@ -25,7 +25,6 @@ export const defaultForm = {
   advocate: "",
 };
 
-
 const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   // If formData/setFormData are not provided, use local state (for Add mode)
   const [localFormData, setLocalFormData] = useState(defaultForm);
@@ -50,8 +49,8 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       setCaseRemarks(
         formData.caseRemarks.map((r, idx) => ({
           ...r,
-          date: r.date ? new Date(r.date).toISOString().slice(0, 10) : '',
-          id: r.id || `${idx}_${Date.now()}_${Math.random()}`
+          date: r.date ? new Date(r.date).toISOString().slice(0, 10) : "",
+          id: r.id || `${idx}_${Date.now()}_${Math.random()}`,
         }))
       );
     } else if (!isEdit) {
@@ -63,7 +62,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const handleAddRemark = () => {
     setCaseRemarks((prev) => [
       ...prev,
-      { date: '', remarks: '', file: null, id: Date.now() + Math.random() }
+      { date: "", remarks: "", file: null, id: Date.now() + Math.random() },
     ]);
   };
 
@@ -77,9 +76,9 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
     setCaseRemarks((prev) =>
       prev.map((r) => {
         if (r.id !== id) return r;
-        if (field === 'file') {
+        if (field === "file") {
           // Only store file name (string) for backend
-          return { ...r, file: value && value.name ? value.name : '' };
+          return { ...r, file: value && value.name ? value.name : "" };
         }
         return { ...r, [field]: value };
       })
@@ -164,10 +163,11 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       if (submitData[k] === "") delete submitData[k];
     });
     // Attach caseRemarks to submitData (remove id field before sending, and only send file as string)
-    submitData.caseRemarks = caseRemarks.map(({date, remarks, file}) => ({
+    submitData.caseRemarks = caseRemarks.map(({ date, remarks, file }) => ({
       date,
       remarks,
-      file: typeof file === 'string' ? file : (file && file.name ? file.name : '')
+      file:
+        typeof file === "string" ? file : file && file.name ? file.name : "",
     }));
     if (onSubmit) {
       // Edit mode: delegate to parent, pass submitData
@@ -481,18 +481,46 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
         </fieldset>
 
         {/* Case Remarks Section */}
-        <div style={{ margin: '1.5rem 0' }}>
-          <h4>Case Remarks</h4><br />
+        <div style={{ margin: "1.5rem 0" }}>
+          <h4>Case Remarks</h4>
+          <br />
           {caseRemarks.map((remark) => (
-            <div key={remark.id} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', position: 'relative', borderRadius: '6px' }}>
-              <button type="button" onClick={() => handleRemoveRemark(remark.id)} style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#c00' }} title="Remove">×</button>
+            <div
+              key={remark.id}
+              style={{
+                border: "1px solid #ccc",
+                padding: "1rem",
+                marginBottom: "1rem",
+                position: "relative",
+                borderRadius: "6px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => handleRemoveRemark(remark.id)}
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 8,
+                  background: "none",
+                  border: "none",
+                  fontSize: "1.2rem",
+                  cursor: "pointer",
+                  color: "#c00",
+                }}
+                title="Remove"
+              >
+                ×
+              </button>
               <div className="form-row">
                 <div className="form-group">
                   <label>Date</label>
                   <input
                     type="date"
                     value={remark.date}
-                    onChange={e => handleRemarkChange(remark.id, 'date', e.target.value)}
+                    onChange={(e) =>
+                      handleRemarkChange(remark.id, "date", e.target.value)
+                    }
                   />
                 </div>
                 <div className="form-group">
@@ -501,21 +529,41 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                     placeholder="Hearing Remarks (optional)"
                     rows={3}
                     value={remark.remarks}
-                    onChange={e => handleRemarkChange(remark.id, 'remarks', e.target.value)}
+                    onChange={(e) =>
+                      handleRemarkChange(remark.id, "remarks", e.target.value)
+                    }
                   />
                 </div>
                 <div className="form-group">
                   <label>File Attachment</label>
                   <input
                     type="file"
-                    onChange={e => handleRemarkChange(remark.id, 'file', e.target.files[0])}
+                    onChange={(e) =>
+                      handleRemarkChange(remark.id, "file", e.target.files[0])
+                    }
                   />
                 </div>
               </div>
             </div>
           ))}
-          <button type="button" onClick={handleAddRemark} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.5rem 1rem', background: '#007bff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 500 }}>
-            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+</span> Add Case Remarks
+          <button
+            type="button"
+            onClick={handleAddRemark}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "0.5rem 1rem",
+              background: "#007bff",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+          >
+            <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>+</span>{" "}
+            Add Case Remarks
           </button>
         </div>
 

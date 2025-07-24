@@ -64,16 +64,16 @@ const StatusList = () => {
     <div className="courts-list">
       <div className="courts-header">
         <h2>Status List</h2>
+        <SearchBar
+          placeholder="Search status..."
+          onSearch={(value) => setSearchTerm(value)}
+        />
         <button className="btn-add" onClick={() => setShowAddModal(true)}>
           Add Status
         </button>
       </div>
 
       {/* ✅ Use shared SearchBar component */}
-      <SearchBar
-        placeholder="Search status..."
-        onSearch={(value) => setSearchTerm(value)}
-      />
 
       <div className="courts-table">
         <div className="courts-table-header">

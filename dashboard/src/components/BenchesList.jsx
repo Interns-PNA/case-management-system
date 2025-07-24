@@ -37,7 +37,10 @@ const BenchesList = () => {
 
   const handleUpdateBench = async (updatedBench) => {
     try {
-      await axios.put(`http://localhost:5000/api/benches/${updatedBench._id}`, updatedBench);
+      await axios.put(
+        `http://localhost:5000/api/benches/${updatedBench._id}`,
+        updatedBench
+      );
       fetchBenches();
       setEditBench(null);
     } catch (err) {
@@ -56,14 +59,15 @@ const BenchesList = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
-    const filtered = benches.filter((bench) =>
-      bench.name.toLowerCase().includes(term.toLowerCase()) ||
-      (Array.isArray(bench.courts) &&
-        bench.courts.some((court) =>
-          typeof court === "object"
-            ? court.name.toLowerCase().includes(term.toLowerCase())
-            : court.toLowerCase().includes(term.toLowerCase())
-        ))
+    const filtered = benches.filter(
+      (bench) =>
+        bench.name.toLowerCase().includes(term.toLowerCase()) ||
+        (Array.isArray(bench.courts) &&
+          bench.courts.some((court) =>
+            typeof court === "object"
+              ? court.name.toLowerCase().includes(term.toLowerCase())
+              : court.toLowerCase().includes(term.toLowerCase())
+          ))
     );
     setFilteredBenches(filtered);
   };
@@ -72,16 +76,14 @@ const BenchesList = () => {
     <div className="benches-list">
       <div className="courts-header">
         <h2>Benches</h2>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <SearchBar
-            searchTerm={searchTerm}
-            onSearch={handleSearch}
-            placeholder="Search Benches..."
-          />
-          <button onClick={() => setShowAddModal(true)} className="btn-add">
-            Add Bench
-          </button>
-        </div>
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearch={handleSearch}
+          placeholder="Search Benches..."
+        />
+        <button onClick={() => setShowAddModal(true)} className="btn-add">
+          Add Bench
+        </button>
       </div>
 
       <div className="courts-table">
@@ -93,7 +95,10 @@ const BenchesList = () => {
         </div>
 
         {filteredBenches.length === 0 ? (
-          <div className="courts-table-row" style={{ textAlign: "center", color: "#888" }}>
+          <div
+            className="courts-table-row"
+            style={{ textAlign: "center", color: "#888" }}
+          >
             <span colSpan={4}>No benches found.</span>
           </div>
         ) : (
