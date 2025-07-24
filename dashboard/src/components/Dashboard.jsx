@@ -55,7 +55,12 @@ const Dashboard = () => {
   };
 
   const cardData = [
-    { label: "Total Cases", value: counts.totalCases, color: "blue" },
+    {
+      label: "Total Cases",
+      value: counts.totalCases,
+      color: "blue",
+      link: "/cases",
+    },
     { label: "Pending", value: counts.pending, color: "yellow" },
     { label: "Closed", value: counts.closed, color: "green" },
     { label: "In Progress", value: counts.inProgress, color: "purple" },

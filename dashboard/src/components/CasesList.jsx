@@ -14,11 +14,22 @@ const CasesList = () => {
   const [statuses, setStatuses] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewCase, setViewCase] = useState(null);
+  const [benches, setBenches] = useState([]);
 
   useEffect(() => {
     fetchCases();
     fetchStatuses();
+    fetchBenches();
   }, []);
+
+  const fetchBenches = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/benches");
+      setBenches(res.data);
+    } catch (err) {
+      console.error("Error fetching benches:", err);
+    }
+  };
 
   const fetchCases = async () => {
     try {
@@ -339,7 +350,19 @@ const CasesList = () => {
                       {viewCase.location?.name || viewCase.location}
                     </div>
                     <div>
-                      <strong>Bench:</strong> {viewCase.bench}
+                      <strong>Bench:</strong>{" "}
+                      {(() => {
+                        if (!viewCase.bench) return "–";
+                        if (
+                          typeof viewCase.bench === "object" &&
+                          viewCase.bench.name
+                        )
+                          return viewCase.bench.name;
+                        const foundBench = benches.find(
+                          (b) => b._id === viewCase.bench
+                        );
+                        return foundBench ? foundBench.name : viewCase.bench;
+                      })()}
                     </div>
                     <div>
                       <strong>Judge:</strong>{" "}
@@ -414,7 +437,7 @@ const CasesList = () => {
                         win.document.write(`
                           <html>
                             <head>
-                              <title>Case Details</title>
+                              <title>Case Summary Document</title>
                               <style>
                                 @media print {
                                   @page { size: A4; margin: 20mm; }
@@ -428,73 +451,136 @@ const CasesList = () => {
                                   box-shadow: 0 0 8px #ccc;
                                   padding: 32px 40px;
                                 }
-                                h1 { color: #2f80ed; margin-bottom: 24px; }
-                                .field { margin-bottom: 14px; font-size: 16px; }
-                                .label { font-weight: bold; color: #333; }
-                                .value { margin-left: 8px; color: #222; }
+                                .court-header {
+                                  text-align: center;
+                                  font-size: 1.5em;
+                                  font-weight: bold;
+                                  margin-bottom: 18px;
+                                  letter-spacing: 1px;
+                                }
+                                table {
+                                  width: 100%;
+                                  border-collapse: collapse;
+                                  margin-bottom: 18px;
+                                }
+                                th, td {
+                                  border: 1px solid #bbb;
+                                  padding: 8px 10px;
+                                  font-size: 15px;
+                                  text-align: left;
+                                }
+                                th {
+                                  background: #f2f2f2;
+                                  font-weight: bold;
+                                }
+                                .section-title {
+                                  font-weight: bold;
+                                  margin-top: 18px;
+                                  margin-bottom: 8px;
+                                  font-size: 1.1em;
+                                  color: #2f80ed;
+                                }
+                                ul {
+                                  margin: 0 0 0 18px;
+                                  padding: 0;
+                                }
+                                li {
+                                  margin-bottom: 6px;
+                                  font-size: 15px;
+                                }
                               </style>
                             </head>
                             <body>
                               <div class="a4">
-                                <h1>Case Details</h1>
-                                <div class="field"><span class="label">Case No:</span><span class="value">${
-                                  viewCase.caseNo || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Title:</span><span class="value">${
-                                  viewCase.caseTitle || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Status:</span><span class="value">${
-                                  viewCase.status || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Department:</span><span class="value">${
-                                  viewCase.ministry || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Court:</span><span class="value">${
-                                  viewCase.court?.name || viewCase.court || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Location:</span><span class="value">${
-                                  viewCase.location?.name ||
-                                  viewCase.location ||
-                                  ""
-                                }</span></div>
-                                <div class="field"><span class="label">Bench:</span><span class="value">${
-                                  viewCase.bench || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Judge:</span><span class="value">${
-                                  Array.isArray(viewCase.judges)
-                                    ? viewCase.judges
-                                        .map((j) => j.name || j)
-                                        .join(", ")
-                                    : viewCase.judges || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Subject Matter:</span><span class="value">${
-                                  viewCase.subjectMatter?.name ||
-                                  viewCase.subjectMatter ||
-                                  ""
-                                }</span></div>
-                                <div class="field"><span class="label">Next Hearing:</span><span class="value">${
-                                  viewCase.nextHearingDate
-                                    ? new Date(
-                                        viewCase.nextHearingDate
-                                      ).toLocaleDateString()
-                                    : "–"
-                                }</span></div>
-                                <div class="field"><span class="label">Remarks:</span><span class="value">${
-                                  viewCase.initialRemarks ||
-                                  viewCase.remarks ||
-                                  ""
-                                }</span></div>
-                                <div class="field"><span class="label">Focal Person:</span><span class="value">${
-                                  viewCase.focalPersonName ||
-                                  viewCase.focalPerson ||
-                                  ""
-                                }</span></div>
-                                <div class="field"><span class="label">Contact:</span><span class="value">${
-                                  viewCase.contact || ""
-                                }</span></div>
-                                <div class="field"><span class="label">Advocate:</span><span class="value">${
-                                  viewCase.lawOfficer || viewCase.advocate || ""
-                                }</span></div>
+                                <div class="court-header">ISLAMABAD HIGH COURT</div>
+                                <table>
+                                  <tr>
+                                    <th>File No.</th>
+                                    <td>${viewCase.fileNo || "–"}</td>
+                                    <th>Case Title</th>
+                                    <td>${viewCase.caseTitle || "–"}</td>
+                                  </tr>
+                                  <tr>
+                                    <th>Case No.</th>
+                                    <td>${viewCase.caseNo || "–"}</td>
+                                    <th>Petitioner/Respondent</th>
+                                    <td>${
+                                      viewCase.petitionerRespondent || "–"
+                                    }</td>
+                                  </tr>
+                                  <tr>
+                                    <th>Counsel / Law Officer</th>
+                                    <td>${
+                                      viewCase.lawOfficer ||
+                                      viewCase.advocate ||
+                                      "–"
+                                    }</td>
+                                    <th>Court</th>
+                                    <td>${
+                                      viewCase.court?.name ||
+                                      viewCase.court ||
+                                      "–"
+                                    }</td>
+                                  </tr>
+                                </table>
+                                <div class="section-title">Brief Facts of the Case</div>
+                                <ul>
+                                  <li><strong>Status:</strong> ${
+                                    viewCase.status || "–"
+                                  }</li>
+                                  <li><strong>Department:</strong> ${
+                                    viewCase.ministry || "–"
+                                  }</li>
+                                  <li><strong>Location:</strong> ${
+                                    viewCase.location?.name ||
+                                    viewCase.location ||
+                                    "–"
+                                  }</li>
+                                  <li><strong>Bench:</strong> ${(() => {
+                                    if (!viewCase.bench) return "–";
+                                    if (
+                                      typeof viewCase.bench === "object" &&
+                                      viewCase.bench.name
+                                    )
+                                      return viewCase.bench.name;
+                                    const foundBench = benches.find(
+                                      (b) => b._id === viewCase.bench
+                                    );
+                                    return foundBench
+                                      ? foundBench.name
+                                      : viewCase.bench;
+                                  })()}</li>
+                                  <li><strong>Judge:</strong> ${
+                                    Array.isArray(viewCase.judges)
+                                      ? viewCase.judges
+                                          .map((j) => j.name || j)
+                                          .join(", ")
+                                      : viewCase.judges || "–"
+                                  }</li>
+                                  <li><strong>Subject Matter:</strong> ${
+                                    viewCase.subjectMatter?.name ||
+                                    viewCase.subjectMatter ||
+                                    "–"
+                                  }</li>
+                                  <li><strong>Next Hearing:</strong> ${
+                                    viewCase.nextHearingDate
+                                      ? new Date(
+                                          viewCase.nextHearingDate
+                                        ).toLocaleDateString()
+                                      : "–"
+                                  }</li>
+                                  <li><strong>Remarks:</strong> ${
+                                    viewCase.initialRemarks ||
+                                    viewCase.remarks ||
+                                    "–"
+                                  }</li>
+                                </ul>
+                                <div class="section-title">Status of Reply by National Assembly Secretariat</div>
+                                <div>Submitted on ${
+                                  viewCase.replyDate || "–"
+                                }</div>
+                                <div class="section-title">Main Stance of NAS in the Reply</div>
+                                <div>${viewCase.nasReply || "–"}</div>
                               </div>
                             </body>
                           </html>
