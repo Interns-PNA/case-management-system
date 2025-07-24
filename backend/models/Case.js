@@ -23,6 +23,13 @@ const caseSchema = new mongoose.Schema({
   lawOfficer: String,
   cmApplications: [String],
   tasks: [String],
+  caseRemarks: [
+    {
+      date: { type: Date },
+      remarks: { type: String },
+      file: { type: String }
+    }
+  ]
 });
 
 module.exports = mongoose.model("Case", caseSchema);

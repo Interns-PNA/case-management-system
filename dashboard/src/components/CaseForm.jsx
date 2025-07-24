@@ -25,6 +25,7 @@ export const defaultForm = {
   advocate: "",
 };
 
+
 const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   // If formData/setFormData are not provided, use local state (for Add mode)
   const [localFormData, setLocalFormData] = useState(defaultForm);
@@ -40,6 +41,50 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const [subjects, setSubjects] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [benches, setBenches] = useState([]);
+  // State for dynamic case remarks
+  const [caseRemarks, setCaseRemarks] = useState([]);
+
+  // Load existing remarks in edit mode, format date for input
+  useEffect(() => {
+    if (isEdit && formData && Array.isArray(formData.caseRemarks)) {
+      setCaseRemarks(
+        formData.caseRemarks.map((r, idx) => ({
+          ...r,
+          date: r.date ? new Date(r.date).toISOString().slice(0, 10) : '',
+          id: r.id || `${idx}_${Date.now()}_${Math.random()}`
+        }))
+      );
+    } else if (!isEdit) {
+      setCaseRemarks([]);
+    }
+  }, [isEdit, formData]);
+
+  // Handler to add a new case remark
+  const handleAddRemark = () => {
+    setCaseRemarks((prev) => [
+      ...prev,
+      { date: '', remarks: '', file: null, id: Date.now() + Math.random() }
+    ]);
+  };
+
+  // Handler to remove a case remark by id
+  const handleRemoveRemark = (id) => {
+    setCaseRemarks((prev) => prev.filter((r) => r.id !== id));
+  };
+
+  // Handler to update a field in a case remark
+  const handleRemarkChange = (id, field, value) => {
+    setCaseRemarks((prev) =>
+      prev.map((r) => {
+        if (r.id !== id) return r;
+        if (field === 'file') {
+          // Only store file name (string) for backend
+          return { ...r, file: value && value.name ? value.name : '' };
+        }
+        return { ...r, [field]: value };
+      })
+    );
+  };
 
   useEffect(() => {
     fetchDropdownData();
@@ -118,6 +163,12 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
     Object.keys(submitData).forEach((k) => {
       if (submitData[k] === "") delete submitData[k];
     });
+    // Attach caseRemarks to submitData (remove id field before sending, and only send file as string)
+    submitData.caseRemarks = caseRemarks.map(({date, remarks, file}) => ({
+      date,
+      remarks,
+      file: typeof file === 'string' ? file : (file && file.name ? file.name : '')
+    }));
     if (onSubmit) {
       // Edit mode: delegate to parent, pass submitData
       await onSubmit(e, submitData);
@@ -428,6 +479,45 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
             </div>
           </div>
         </fieldset>
+
+        {/* Case Remarks Section */}
+        <div style={{ margin: '1.5rem 0' }}>
+          <h4>Case Remarks</h4><br />
+          {caseRemarks.map((remark) => (
+            <div key={remark.id} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', position: 'relative', borderRadius: '6px' }}>
+              <button type="button" onClick={() => handleRemoveRemark(remark.id)} style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: '#c00' }} title="Remove">×</button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Date</label>
+                  <input
+                    type="date"
+                    value={remark.date}
+                    onChange={e => handleRemarkChange(remark.id, 'date', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Hearing Remarks</label>
+                  <textarea
+                    placeholder="Hearing Remarks (optional)"
+                    rows={3}
+                    value={remark.remarks}
+                    onChange={e => handleRemarkChange(remark.id, 'remarks', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>File Attachment</label>
+                  <input
+                    type="file"
+                    onChange={e => handleRemarkChange(remark.id, 'file', e.target.files[0])}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          <button type="button" onClick={handleAddRemark} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0.5rem 1rem', background: '#007bff', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 500 }}>
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>+</span> Add Case Remarks
+          </button>
+        </div>
 
         <div className="form-row form-actions">
           <button
