@@ -35,7 +35,7 @@
 }
 
 .auth-logo {
-  margin-bottom: 60px;
+  margin-bottom: 50px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -66,6 +66,8 @@
 
 .auth-image-placeholder {
   display: flex;
+  flex-direction: column;
+  gap: 20px;
   align-items: center;
   justify-content: center;
   width: 100%;
@@ -198,22 +200,22 @@ body:has(.auth-page) .app-container {
     width: 100vw;
     height: 100vh;
   }
-  
+
   .auth-right {
     min-height: 30vh;
     flex: 0 0 30vh;
   }
-  
+
   .auth-left {
     padding: 40px 30px;
     flex: 1;
     min-height: 70vh;
   }
-  
+
   .auth-logo {
     margin-bottom: 32px;
   }
-  
+
   .auth-image-placeholder img {
     width: 100px !important;
     height: 100px !important;
@@ -246,7 +248,7 @@ body:has(.auth-page) .app-container {
     width: 36px !important;
     height: 36px !important;
   }
-  
+
   .auth-right {
     min-height: 25vh;
     flex: 0 0 25vh;

@@ -1,28 +1,42 @@
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../auth.css";
 import naLogo from "../assets/na.png";
 
 export default function LoginForm(props) {
+  const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    navigate("/dashboard");
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-left">
-          <div className="auth-logo">
+          <a
+            href="https://na.gov.pk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-logo"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
             <img
               src={naLogo}
               alt="National Assembly"
               style={{ width: "40px", height: "40px" }}
             />
-            <span className="font-semibold text-lg text-gray-800">
+            <span className="font-semibold text-lg text-gray-600">
               National Assembly of Pakistan
             </span>
-          </div>
+          </a>
           <form
             className="flex flex-col gap-6"
             style={{ minWidth: 320 }}
+            onSubmit={handleLogin}
             {...props}
           >
             <div className="flex flex-col items-center gap-2 text-center">
@@ -42,7 +56,7 @@ export default function LoginForm(props) {
                 />
               </div>
               <div className="grid gap-3">
-                <div className="flex items-center">
+                <div className="flex justify-between items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
                     href="#"
@@ -96,13 +110,21 @@ export default function LoginForm(props) {
           </form>
         </div>
         <div className="auth-right">
-          <div className="auth-image-placeholder">
+          <a
+            href="https://na.gov.pk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-image-placeholder"
+          >
             <img
               src={naLogo}
               alt="National Assembly"
               style={{ width: 150, height: 150, opacity: 0.8 }}
             />
-          </div>
+            <span className="text-muted-foreground">
+              Welcome to the National Assembly of Pakistan
+            </span>
+          </a>
         </div>
       </div>
     </div>
