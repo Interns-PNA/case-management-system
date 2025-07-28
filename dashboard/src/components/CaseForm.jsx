@@ -42,6 +42,10 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const [benches, setBenches] = useState([]);
   // State for dynamic case remarks
   const [caseRemarks, setCaseRemarks] = useState([]);
+  // State for selected judges (multiple selection)
+  const [selectedJudges, setSelectedJudges] = useState([]);
+  // State for judge dropdown visibility
+  const [isJudgeDropdownOpen, setIsJudgeDropdownOpen] = useState(false);
 
   // Load existing remarks in edit mode, format date for input
   useEffect(() => {
@@ -55,6 +59,21 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       );
     } else if (!isEdit) {
       setCaseRemarks([]);
+    }
+  }, [isEdit, formData]);
+
+  // Load selected judges in edit mode
+  useEffect(() => {
+    if (isEdit && formData && formData.judges) {
+      // If judges is already an array, use it directly
+      if (Array.isArray(formData.judges)) {
+        setSelectedJudges(formData.judges);
+      } else {
+        // If it's a single judge, convert to array
+        setSelectedJudges([formData.judges]);
+      }
+    } else if (!isEdit) {
+      setSelectedJudges([]);
     }
   }, [isEdit, formData]);
 
@@ -84,6 +103,68 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       })
     );
   };
+
+  // Handler for judge selection
+  const handleJudgeSelection = (judgeId) => {
+    setSelectedJudges((prev) => {
+      if (prev.includes(judgeId)) {
+        // Remove judge if already selected
+        return prev.filter((id) => id !== judgeId);
+      } else {
+        // Add judge if not selected
+        return [...prev, judgeId];
+      }
+    });
+  };
+
+  // Handler to toggle judge dropdown
+  const toggleJudgeDropdown = () => {
+    setIsJudgeDropdownOpen(!isJudgeDropdownOpen);
+  };
+
+  // Get selected judge names for display
+  const getSelectedJudgeNames = () => {
+    const judgeNames = selectedJudges
+      .map((judgeId) => {
+        const judge = judges.find((j) => j._id === judgeId);
+        return judge ? judge.name : "";
+      })
+      .filter((name) => name);
+    
+    if (judgeNames.length === 0) return "";
+    if (judgeNames.length === 1) return judgeNames[0];
+    if (judgeNames.length === 2) return judgeNames.join(" & ");
+    return `${judgeNames[0]} & ${judgeNames.length - 1} more`;
+  };
+
+  // Get full list of selected judge names for tooltip
+  const getFullJudgeNames = () => {
+    return selectedJudges
+      .map((judgeId) => {
+        const judge = judges.find((j) => j._id === judgeId);
+        return judge ? judge.name : "";
+      })
+      .filter((name) => name)
+      .join(", ");
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const dropdownContainer = document.querySelector('.judge-dropdown-container');
+      if (dropdownContainer && !dropdownContainer.contains(event.target)) {
+        setIsJudgeDropdownOpen(false);
+      }
+    };
+
+    if (isJudgeDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isJudgeDropdownOpen]);
 
   useEffect(() => {
     fetchDropdownData();
@@ -132,6 +213,13 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate that at least one judge is selected
+    if (selectedJudges.length === 0) {
+      alert("Please select at least one judge");
+      return;
+    }
+    
     // Prepare data for backend
     let submitData = { ...data };
     // Map department to ministry
@@ -140,10 +228,8 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
     // Map remarks to initialRemarks
     submitData.initialRemarks = data.remarks;
     delete submitData.remarks;
-    // Judges: always send as array of ObjectId(s)
-    if (submitData.judges && !Array.isArray(submitData.judges)) {
-      submitData.judges = [submitData.judges];
-    }
+    // Judges: use selected judges array
+    submitData.judges = selectedJudges;
     // Convert totalJudges and revenue to numbers if present
     if (submitData.totalJudges)
       submitData.totalJudges = Number(submitData.totalJudges);
@@ -350,22 +436,60 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
           </div>
 
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="judges">Judge *</label>
-              <select
-                id="judges"
-                name="judges"
-                value={data.judges}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Judge</option>
-                {judges.map((j) => (
-                  <option key={j._id} value={j._id}>
-                    {j.name}
-                  </option>
-                ))}
-              </select>
+            <div className="form-group" style={{ flex: "2" }}>
+              <label htmlFor="judges">Judge(s) *</label>
+              <div className="judge-dropdown-container">
+                <div
+                  className="judge-selector"
+                  onClick={toggleJudgeDropdown}
+                >
+                  <span 
+                    style={{ 
+                      color: selectedJudges.length > 0 ? "#000" : "#666",
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      fontSize: "14px",
+                      lineHeight: "1.4"
+                    }}
+                    title={selectedJudges.length > 2 ? getFullJudgeNames() : ""}
+                  >
+                    {selectedJudges.length > 0 
+                      ? getSelectedJudgeNames() 
+                      : "Select Judge(s)"}
+                  </span>
+                  <span style={{ fontSize: "12px" }}>▼</span>
+                </div>
+                
+                {isJudgeDropdownOpen && (
+                  <div className="judge-dropdown">
+                    {judges.map((judge) => (
+                      <div
+                        key={judge._id}
+                        onClick={() => handleJudgeSelection(judge._id)}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedJudges.includes(judge._id)}
+                          onChange={() => {}} // Controlled by onClick
+                        />
+                        <span>{judge.name}</span>
+                      </div>
+                    ))}
+                    {judges.length === 0 && (
+                      <div style={{ padding: "8px 12px", color: "#666" }}>
+                        No judges available
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {selectedJudges.length === 0 && (
+                <div style={{ color: "#d32f2f", fontSize: "12px", marginTop: "4px" }}>
+                  Please select at least one judge
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label htmlFor="subjectMatter">Subject Matter *</label>
