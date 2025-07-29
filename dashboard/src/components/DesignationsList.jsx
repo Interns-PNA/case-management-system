@@ -73,7 +73,10 @@ const DesignationsList = () => {
 
   return (
     <div className="designations-table">
-      <div className="courts-header">
+      <div
+        style={{ margin: "0px", padding: "10px 0" }}
+        className="courts-header"
+      >
         <h2>Designations</h2>
         <SearchBar
           searchTerm={searchTerm}
@@ -86,7 +89,7 @@ const DesignationsList = () => {
       </div>
 
       <div className="designations-table-content">
-        <div className="designations-table-header">
+        <div style={{ margin: "5px 0" }} className="designations-table-header">
           <span>S.No</span>
           <span>Name</span>
           <span>Details</span>

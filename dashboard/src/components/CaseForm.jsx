@@ -552,7 +552,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
           </div>
 
           <div className="form-row">
-            <div className="form-group">
+            <div style={{ maxHeight: "42px" }} className="form-group">
               <label htmlFor="hearingDate">Hearing Date</label>
               <input
                 type="date"
@@ -562,7 +562,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 onChange={handleChange}
               />
             </div>
-            <div className="form-group">
+            <div style={{ maxHeight: "42px" }} className="form-group">
               <label htmlFor="nextHearingDate">Next Hearing Date</label>
               <input
                 type="date"
@@ -704,7 +704,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 x
               </button>
               <div className="form-row">
-                <div style={{ maxHeight: "80px" }} className="form-group">
+                <div style={{ maxHeight: "42px" }} className="form-group">
                   <label>Date</label>
                   <input
                     type="date"

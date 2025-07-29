@@ -330,7 +330,13 @@ const CasesList = () => {
         </div>
       )}
 
-      <div className="courts-header">
+      <div
+        style={{
+          padding: "0px",
+          margin: "0px",
+        }}
+        className="courts-header"
+      >
         <h2>Cases</h2>
         <SearchBar
           searchTerm={searchTerm}
