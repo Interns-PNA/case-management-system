@@ -45,7 +45,10 @@ exports.createCase = async (req, res) => {
 
     const newCase = new Case(caseData);
     const saved = await newCase.save();
-    res.status(201).json(saved);
+    const populated = await Case.findById(saved._id).populate(
+      "court judges subjectMatter location"
+    );
+    res.status(201).json(populated);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -131,7 +134,7 @@ exports.updateCase = async (req, res) => {
 
     const updated = await Case.findByIdAndUpdate(req.params.id, caseData, {
       new: true,
-    });
+    }).populate("court judges subjectMatter location");
     if (!updated) return res.status(404).json({ error: "Case not found" });
     res.json(updated);
   } catch (err) {

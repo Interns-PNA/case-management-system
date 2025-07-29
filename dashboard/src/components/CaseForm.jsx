@@ -140,6 +140,10 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const [benches, setBenches] = useState([]);
   // State for dynamic case remarks
   const [caseRemarks, setCaseRemarks] = useState([]);
+  // State for selected judges (multiple selection)
+  const [selectedJudges, setSelectedJudges] = useState([]);
+  // State for judge dropdown visibility
+  const [isJudgeDropdownOpen, setIsJudgeDropdownOpen] = useState(false);
 
   // Load existing remarks in edit mode, format date for input
   useEffect(() => {
@@ -153,6 +157,21 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       );
     } else if (!isEdit) {
       setCaseRemarks([]);
+    }
+  }, [isEdit, formData]);
+
+  // Load selected judges in edit mode
+  useEffect(() => {
+    if (isEdit && formData && formData.judges) {
+      // If judges is already an array, use it directly
+      if (Array.isArray(formData.judges)) {
+        setSelectedJudges(formData.judges);
+      } else {
+        // If it's a single judge, convert to array
+        setSelectedJudges([formData.judges]);
+      }
+    } else if (!isEdit) {
+      setSelectedJudges([]);
     }
   }, [isEdit, formData]);
 
@@ -182,6 +201,70 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       })
     );
   };
+
+  // Handler for judge selection
+  const handleJudgeSelection = (judgeId) => {
+    setSelectedJudges((prev) => {
+      if (prev.includes(judgeId)) {
+        // Remove judge if already selected
+        return prev.filter((id) => id !== judgeId);
+      } else {
+        // Add judge if not selected
+        return [...prev, judgeId];
+      }
+    });
+  };
+
+  // Handler to toggle judge dropdown
+  const toggleJudgeDropdown = () => {
+    setIsJudgeDropdownOpen(!isJudgeDropdownOpen);
+  };
+
+  // Get selected judge names for display
+  const getSelectedJudgeNames = () => {
+    const judgeNames = selectedJudges
+      .map((judgeId) => {
+        const judge = judges.find((j) => j._id === judgeId);
+        return judge ? judge.name : "";
+      })
+      .filter((name) => name);
+
+    if (judgeNames.length === 0) return "";
+    if (judgeNames.length === 1) return judgeNames[0];
+    if (judgeNames.length === 2) return judgeNames.join(" & ");
+    return `${judgeNames[0]} & ${judgeNames.length - 1} more`;
+  };
+
+  // Get full list of selected judge names for tooltip
+  const getFullJudgeNames = () => {
+    return selectedJudges
+      .map((judgeId) => {
+        const judge = judges.find((j) => j._id === judgeId);
+        return judge ? judge.name : "";
+      })
+      .filter((name) => name)
+      .join(", ");
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const dropdownContainer = document.querySelector(
+        ".judge-dropdown-container"
+      );
+      if (dropdownContainer && !dropdownContainer.contains(event.target)) {
+        setIsJudgeDropdownOpen(false);
+      }
+    };
+
+    if (isJudgeDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isJudgeDropdownOpen]);
 
   useEffect(() => {
     fetchDropdownData();
@@ -233,6 +316,12 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
     // Create FormData for file uploads
     const formData = new FormData();
+
+    // Validate that at least one judge is selected
+    if (selectedJudges.length === 0) {
+      alert("Please select at least one judge");
+      return;
+    }
 
     // Prepare data for backend
     let submitData = { ...data };

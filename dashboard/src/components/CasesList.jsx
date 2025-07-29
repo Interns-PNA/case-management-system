@@ -284,12 +284,14 @@ const CasesList = () => {
         bench: editCase.bench || "",
         judges:
           Array.isArray(editCase.judges) && editCase.judges.length > 0
-            ? typeof editCase.judges[0] === "object" && editCase.judges[0]?._id
-              ? editCase.judges[0]._id
-              : editCase.judges[0]
+            ? editCase.judges.map((judge) =>
+                typeof judge === "object" && judge?._id ? judge._id : judge
+              )
             : typeof editCase.judges === "object" && editCase.judges?._id
-            ? editCase.judges._id
-            : editCase.judges || "",
+            ? [editCase.judges._id]
+            : editCase.judges
+            ? [editCase.judges]
+            : [],
         subjectMatter:
           typeof editCase.subjectMatter === "object" &&
           editCase.subjectMatter?._id
@@ -309,7 +311,7 @@ const CasesList = () => {
   }, [editCase]);
 
   return (
-    <div className="departments-table">
+    <div>
       {/* Inline Edit Form at the top */}
       {editFormData && (
         <div style={{ margin: "20px 0" }}>
