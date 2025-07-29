@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../assets/logo.png";
 import "../App.css";
@@ -7,6 +7,7 @@ import "../App.css";
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -26,9 +27,12 @@ const Dashboard = () => {
     designations: 0,
   });
 
+  const [hearingDates, setHearingDates] = useState([]);
+
   useEffect(() => {
     fetchCounts();
-  }, []);
+    fetchHearingDates();
+  }, [currentMonth, currentYear]);
 
   const fetchCounts = async () => {
     try {
@@ -51,6 +55,55 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error("Error fetching summary counts:", error);
+    }
+  };
+
+  const fetchHearingDates = async () => {
+    try {
+      const startDate = new Date(currentYear, currentMonth, 1);
+      const endDate = new Date(currentYear, currentMonth + 1, 0);
+
+      const res = await axios.get(
+        `http://localhost:5000/api/cases?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+      );
+
+      // Extract unique hearing dates for the current month
+      const dates = res.data
+        .filter((case_) => case_.nextHearingDate)
+        .map((case_) => {
+          const hearingDate = new Date(case_.nextHearingDate);
+          // Check if the hearing date is actually in the current month and year
+          if (
+            hearingDate.getMonth() === currentMonth &&
+            hearingDate.getFullYear() === currentYear
+          ) {
+            return hearingDate.getDate(); // Get day of month
+          }
+          return null; // Return null for dates not in current month
+        })
+        .filter((day) => day !== null); // Remove null values
+
+      // Remove duplicates
+      setHearingDates([...new Set(dates)]);
+    } catch (error) {
+      console.error("Error fetching hearing dates:", error);
+      setHearingDates([]);
+    }
+  };
+
+  const hasHearing = (day) => {
+    return hearingDates.includes(day);
+  };
+
+  const handleDateClick = (day) => {
+    if (hasHearing(day)) {
+      // Format the date as YYYY-MM-DD for the filter without timezone conversion
+      const year = currentYear;
+      const month = String(currentMonth + 1).padStart(2, "0"); // currentMonth is 0-based
+      const dayStr = String(day).padStart(2, "0");
+      const dateString = `${year}-${month}-${dayStr}`;
+      // Navigate to cases list with date filter using React Router
+      navigate(`/cases?hearingDate=${dateString}`);
     }
   };
 
@@ -82,7 +135,13 @@ const Dashboard = () => {
       link: "/cases",
       search: "In Progress",
     },
-    { label: "Upcoming Cases", value: counts.upcoming, color: "blue" },
+    {
+      label: "Upcoming Cases",
+      value: counts.upcoming,
+      color: "blue",
+      link: "/cases",
+      filter: "upcoming",
+    },
     {
       label: "Departments",
       value: counts.departments,
@@ -179,15 +238,25 @@ const Dashboard = () => {
             );
 
             if (card.link) {
+              let linkUrl = card.link;
+              if (card.search) {
+                linkUrl += `?search=${encodeURIComponent(card.search)}`;
+              } else if (card.filter === "upcoming") {
+                // Get today's date in YYYY-MM-DD format
+                const today = new Date();
+                const todayStr = `${today.getFullYear()}-${String(
+                  today.getMonth() + 1
+                ).padStart(2, "0")}-${String(today.getDate()).padStart(
+                  2,
+                  "0"
+                )}`;
+                linkUrl += `?upcomingFrom=${todayStr}`;
+              }
+
               return (
                 <Link
                   key={index}
-                  to={
-                    card.link +
-                    (card.search
-                      ? `?search=${encodeURIComponent(card.search)}`
-                      : "")
-                  }
+                  to={linkUrl}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   {content}
@@ -220,8 +289,18 @@ const Dashboard = () => {
               <div key={`empty-${i}`} className="calendar-day empty"></div>
             ))}
             {Array.from({ length: daysInMonth }, (_, i) => (
-              <div key={i} className="calendar-day">
-                {i + 1}
+              <div
+                key={i}
+                className={`calendar-day ${
+                  hasHearing(i + 1) ? "hearing-date" : ""
+                }`}
+                onClick={() => handleDateClick(i + 1)}
+                style={{
+                  cursor: hasHearing(i + 1) ? "pointer" : "default",
+                }}
+              >
+                <span>{i + 1}</span>
+                {hasHearing(i + 1) && <div className="hearing-indicator"></div>}
               </div>
             ))}
           </div>

@@ -3,39 +3,13 @@ import axios from "axios";
 import SearchBar from "./SearchBar";
 import { Edit, Trash2, Eye } from "lucide-react";
 import CaseForm from "./CaseForm";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const CasesList = () => {
+  const location = useLocation();
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Read ?search= param from URL on mount
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const search = params.get("search");
-    if (search) {
-      setSearchTerm(search);
-      // Immediately filter cases if cases are already loaded
-      setFilteredCases(
-        cases.filter(
-          (c) =>
-            c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
-            (c.caseTitle &&
-              c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
-            (getStatusName(c.status) &&
-              getStatusName(c.status)
-                .toLowerCase()
-                .includes(search.toLowerCase())) ||
-            (c.ministry &&
-              c.ministry.toLowerCase().includes(search.toLowerCase())) ||
-            (c.subjectMatter &&
-              typeof c.subjectMatter === "string" &&
-              c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
-        )
-      );
-    }
-  }, [cases]);
   const [editCase, setEditCase] = useState(null);
   const [editFormData, setEditFormData] = useState(null);
   const [statuses, setStatuses] = useState([]);
@@ -48,6 +22,64 @@ const CasesList = () => {
     fetchStatuses();
     fetchBenches();
   }, []);
+
+  // Re-apply filtering when URL parameters change
+  useEffect(() => {
+    if (cases.length > 0) {
+      const params = new URLSearchParams(location.search);
+      const search = params.get("search");
+      const hearingDate = params.get("hearingDate");
+      const upcomingFrom = params.get("upcomingFrom");
+
+      if (search) {
+        setSearchTerm(search);
+      }
+
+      // Only filter if there are search parameters, otherwise show all cases
+      if (search || hearingDate || upcomingFrom) {
+        let filtered = cases;
+
+        if (search) {
+          filtered = filtered.filter(
+            (c) =>
+              c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
+              (c.caseTitle &&
+                c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
+              (c.ministry &&
+                c.ministry.toLowerCase().includes(search.toLowerCase())) ||
+              (c.subjectMatter &&
+                typeof c.subjectMatter === "string" &&
+                c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
+          );
+        }
+
+        if (hearingDate) {
+          filtered = filtered.filter((c) => {
+            if (!c.nextHearingDate) return false;
+            const caseHearingDate = new Date(c.nextHearingDate)
+              .toISOString()
+              .split("T")[0];
+            return caseHearingDate === hearingDate;
+          });
+        }
+
+        if (upcomingFrom) {
+          filtered = filtered.filter((c) => {
+            if (!c.nextHearingDate) return false;
+            const caseHearingDate = new Date(c.nextHearingDate)
+              .toISOString()
+              .split("T")[0];
+            return caseHearingDate >= upcomingFrom;
+          });
+        }
+
+        setFilteredCases(filtered);
+      } else {
+        // No filters applied, show all cases
+        setFilteredCases(cases);
+      }
+    }
+  }, [location.search, cases]);
 
   const fetchBenches = async () => {
     try {
@@ -62,7 +94,60 @@ const CasesList = () => {
     try {
       const res = await axios.get("http://localhost:5000/api/cases");
       setCases(res.data);
-      setFilteredCases(res.data);
+
+      // Apply URL parameter filtering after cases are loaded
+      const params = new URLSearchParams(window.location.search);
+      const search = params.get("search");
+      const hearingDate = params.get("hearingDate");
+      const upcomingFrom = params.get("upcomingFrom");
+
+      if (search) {
+        setSearchTerm(search);
+      }
+
+      // Only filter if there are search parameters, otherwise show all cases
+      if (search || hearingDate || upcomingFrom) {
+        let filtered = res.data;
+
+        if (search) {
+          filtered = filtered.filter(
+            (c) =>
+              c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
+              (c.caseTitle &&
+                c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
+              (c.ministry &&
+                c.ministry.toLowerCase().includes(search.toLowerCase())) ||
+              (c.subjectMatter &&
+                typeof c.subjectMatter === "string" &&
+                c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
+          );
+        }
+
+        if (hearingDate) {
+          filtered = filtered.filter((c) => {
+            if (!c.nextHearingDate) return false;
+            const caseHearingDate = new Date(c.nextHearingDate)
+              .toISOString()
+              .split("T")[0];
+            return caseHearingDate === hearingDate;
+          });
+        }
+
+        if (upcomingFrom) {
+          filtered = filtered.filter((c) => {
+            if (!c.nextHearingDate) return false;
+            const caseHearingDate = new Date(c.nextHearingDate)
+              .toISOString()
+              .split("T")[0];
+            return caseHearingDate >= upcomingFrom;
+          });
+        }
+
+        setFilteredCases(filtered);
+      } else {
+        // No filters applied, show all cases
+        setFilteredCases(res.data);
+      }
     } catch (err) {
       console.error("Error fetching cases:", err);
     }
@@ -101,14 +186,47 @@ const CasesList = () => {
 
   const handleUpdateCase = async (updatedCase) => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/cases/${updatedCase._id}`,
-        updatedCase
-      );
+      // Check if updatedCase is FormData (for file uploads) or regular object
+      const isFormData = updatedCase instanceof FormData;
+
+      console.log("Updating case, isFormData:", isFormData);
+      if (isFormData) {
+        console.log("FormData keys:", Array.from(updatedCase.keys()));
+      } else {
+        console.log("Regular object keys:", Object.keys(updatedCase));
+      }
+
+      if (isFormData) {
+        // For FormData (file uploads), we need to add the ID separately
+        const caseId = editCase._id;
+        console.log("Updating case with ID:", caseId);
+        await axios.put(
+          `http://localhost:5000/api/cases/${caseId}`,
+          updatedCase,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        // For regular JSON updates
+        await axios.put(
+          `http://localhost:5000/api/cases/${updatedCase._id}`,
+          updatedCase
+        );
+      }
+
       fetchCases();
       setEditCase(null);
+      setEditFormData(null);
+      alert("Case updated successfully!");
     } catch (err) {
       console.error("Error updating case:", err);
+      console.error("Error response:", err.response?.data);
+      alert(
+        `Failed to update case: ${err.response?.data?.error || err.message}`
+      );
     }
   };
 
@@ -410,7 +528,7 @@ const CasesList = () => {
                         : "–"}
                     </div>
                     <div>
-                      <strong>Remarks:</strong>{" "}
+                      <strong>Initial Remarks:</strong>{" "}
                       {viewCase.initialRemarks || viewCase.remarks}
                     </div>
                   </div>
@@ -603,18 +721,13 @@ const CasesList = () => {
                                         ).toLocaleDateString()
                                       : "–"
                                   }</li>
-                                  <li><strong>Remarks:</strong> ${
+                                  <li><strong>Initial Remarks:</strong> ${
                                     viewCase.initialRemarks ||
                                     viewCase.remarks ||
                                     "–"
                                   }</li>
                                 </ul>
-                                <div class="section-title">Status of Reply by National Assembly Secretariat</div>
-                                <div>Submitted on ${
-                                  viewCase.replyDate || "–"
-                                }</div>
-                                <div class="section-title">Main Stance of NAS in the Reply</div>
-                                <div>${viewCase.nasReply || "–"}</div>
+                                
                               </div>
                             </body>
                           </html>
@@ -631,6 +744,24 @@ const CasesList = () => {
           </div>
         ))}
       </div>
+
+      {/* Add Case Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal" style={{ minWidth: 400 }}>
+            <h3>Add New Case</h3>
+            <p>Add case functionality would go here.</p>
+            <div className="modal-actions">
+              <button
+                className="btn-cancel"
+                onClick={() => setShowAddModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

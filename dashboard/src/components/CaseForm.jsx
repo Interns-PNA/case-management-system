@@ -3,6 +3,104 @@ import { useNavigate } from "react-router-dom";
 import "./CaseForm.css";
 import axios from "axios";
 
+// Helper component for file status display
+const FileStatusDisplay = ({ isEdit, formData, fileInputId }) => {
+  const [, forceUpdate] = useState({});
+
+  useEffect(() => {
+    const fileInput = document.getElementById(fileInputId);
+    const handleFileChange = () => forceUpdate({});
+
+    if (fileInput) {
+      fileInput.addEventListener("change", handleFileChange);
+      return () => fileInput.removeEventListener("change", handleFileChange);
+    }
+  }, [fileInputId]);
+
+  const fileInput = document.getElementById(fileInputId);
+  const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+  const hasExistingFile =
+    isEdit && formData && formData.files && formData.files.length > 0;
+
+  if (hasNewFile) {
+    return (
+      <span style={{ fontSize: "14px", color: "#666" }}>
+        File selected: {fileInput.files[0].name}
+      </span>
+    );
+  } else if (hasExistingFile) {
+    return (
+      <span style={{ fontSize: "14px", color: "#666" }}>
+        Current file:
+        <a
+          href={`http://localhost:5000/uploads/${formData.files[0]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginLeft: "6px", color: "#2f80ed" }}
+        >
+          {formData.files[0]}
+        </a>
+        <span style={{ marginLeft: "6px", fontSize: "12px" }}>
+          (Upload a new file to replace)
+        </span>
+      </span>
+    );
+  } else {
+    return (
+      <span style={{ fontSize: "14px", color: "#999" }}>No file chosen</span>
+    );
+  }
+};
+
+// Helper component for remark file status display
+const RemarkFileStatusDisplay = ({ remark, fileInputId }) => {
+  const [, forceUpdate] = useState({});
+
+  useEffect(() => {
+    const fileInput = document.getElementById(fileInputId);
+    const handleFileChange = () => forceUpdate({});
+
+    if (fileInput) {
+      fileInput.addEventListener("change", handleFileChange);
+      return () => fileInput.removeEventListener("change", handleFileChange);
+    }
+  }, [fileInputId]);
+
+  const fileInput = document.getElementById(fileInputId);
+  const hasNewFile = fileInput && fileInput.files && fileInput.files.length > 0;
+  const hasExistingFile =
+    remark.file && typeof remark.file === "string" && remark.file !== "";
+
+  if (hasNewFile) {
+    return (
+      <span style={{ fontSize: "14px", color: "#666" }}>
+        File selected: {fileInput.files[0].name}
+      </span>
+    );
+  } else if (hasExistingFile) {
+    return (
+      <span style={{ fontSize: "14px", color: "#666" }}>
+        Current file:
+        <a
+          href={`http://localhost:5000/uploads/${remark.file}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginLeft: "6px", color: "#2f80ed" }}
+        >
+          {remark.file}
+        </a>
+        <span style={{ marginLeft: "6px", fontSize: "12px" }}>
+          (Upload a new file to replace)
+        </span>
+      </span>
+    );
+  } else {
+    return (
+      <span style={{ fontSize: "14px", color: "#999" }}>No file chosen</span>
+    );
+  }
+};
+
 export const defaultForm = {
   caseNo: "",
   caseType: "Normal",
@@ -77,8 +175,8 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
       prev.map((r) => {
         if (r.id !== id) return r;
         if (field === "file") {
-          // Only store file name (string) for backend
-          return { ...r, file: value && value.name ? value.name : "" };
+          // Store actual file object for new uploads, keep string for existing files
+          return { ...r, file: value || "" };
         }
         return { ...r, [field]: value };
       })
@@ -132,6 +230,10 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Create FormData for file uploads
+    const formData = new FormData();
+
     // Prepare data for backend
     let submitData = { ...data };
     // Map department to ministry
@@ -162,21 +264,57 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
     Object.keys(submitData).forEach((k) => {
       if (submitData[k] === "") delete submitData[k];
     });
-    // Attach caseRemarks to submitData (remove id field before sending, and only send file as string)
-    submitData.caseRemarks = caseRemarks.map(({ date, remarks, file }) => ({
+
+    // Remove _id from submitData as it should not be part of the update data
+    delete submitData._id;
+
+    // Prepare caseRemarks for submission
+    const remarksForSubmission = caseRemarks.map(({ date, remarks, file }) => ({
       date,
       remarks,
-      file:
-        typeof file === "string" ? file : file && file.name ? file.name : "",
+      file: typeof file === "string" ? file : "",
     }));
+    submitData.caseRemarks = remarksForSubmission;
+
+    // Add text fields to FormData
+    Object.keys(submitData).forEach((key) => {
+      if (key === "caseRemarks") {
+        formData.append(key, JSON.stringify(submitData[key]));
+      } else if (Array.isArray(submitData[key])) {
+        formData.append(key, JSON.stringify(submitData[key]));
+      } else {
+        formData.append(key, submitData[key]);
+      }
+    });
+
+    // Note: _id is handled via URL parameter in edit mode, not in FormData
+
+    // Add main case file if present
+    const caseFileInput = document.getElementById("caseFile");
+    if (caseFileInput && caseFileInput.files[0]) {
+      formData.append("caseFile", caseFileInput.files[0]);
+    }
+
+    // Add case remark files
+    caseRemarks.forEach((remark, index) => {
+      if (remark.file && typeof remark.file === "object") {
+        formData.append(`remarkFile_${index}`, remark.file);
+      }
+    });
+
     if (onSubmit) {
-      // Edit mode: delegate to parent, pass submitData
-      await onSubmit(e, submitData);
+      // Edit mode: delegate to parent, pass formData
+      await onSubmit(e, formData);
       return;
     }
+
     // Add mode: local submit
     try {
-      await axios.post("http://localhost:5000/api/cases", submitData);
+      await axios.post("http://localhost:5000/api/cases", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("Case submitted successfully!");
       if (onCancel) onCancel(); // to close the form
     } catch (error) {
@@ -436,7 +574,60 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
             </div>
             <div className="form-group">
               <label htmlFor="caseFile">Upload File</label>
-              <input type="file" id="caseFile" />
+              <div style={{ position: "relative" }}>
+                <input
+                  type="file"
+                  id="caseFile"
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    width: "100%",
+                    height: "42px",
+                    cursor: "pointer",
+                  }}
+                  onChange={() => {
+                    // Force re-render to update the file display
+                    setData((prev) => ({ ...prev, _fileChanged: Date.now() }));
+                  }}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    backgroundColor: "#ffffff",
+                    cursor: "pointer",
+                    height: "42px",
+                  }}
+                >
+                  <span
+                    style={{
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      padding: "8px 12px",
+                      borderRadius: "4px 0 0 4px",
+                      fontSize: "14px",
+                      fontWeight: "500",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      boxSizing: "border-box",
+                      width: "100%",
+                      justifyContent: "center",
+                    }}
+                  >
+                    Choose File
+                  </span>
+                </div>
+                <div style={{ marginTop: "8px" }}>
+                  <FileStatusDisplay
+                    isEdit={isEdit}
+                    formData={formData}
+                    fileInputId="caseFile"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </fieldset>
@@ -510,10 +701,10 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 }}
                 title="Remove"
               >
-                ×
+                x
               </button>
               <div className="form-row">
-                <div className="form-group">
+                <div style={{ maxHeight: "80px" }} className="form-group">
                   <label>Date</label>
                   <input
                     type="date"
@@ -523,7 +714,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                     }
                   />
                 </div>
-                <div className="form-group">
+                <div style={{ maxHeight: "80px" }} className="form-group">
                   <label>Hearing Remarks</label>
                   <textarea
                     placeholder="Hearing Remarks (optional)"
@@ -536,12 +727,58 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 </div>
                 <div className="form-group">
                   <label>File Attachment</label>
-                  <input
-                    type="file"
-                    onChange={(e) =>
-                      handleRemarkChange(remark.id, "file", e.target.files[0])
-                    }
-                  />
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type="file"
+                      id={`remarkFile-${remark.id}`}
+                      style={{
+                        position: "absolute",
+                        opacity: 0,
+                        width: "100%",
+                        height: "42px",
+                        cursor: "pointer",
+                      }}
+                      onChange={(e) =>
+                        handleRemarkChange(remark.id, "file", e.target.files[0])
+                      }
+                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#ffffff",
+                        cursor: "pointer",
+                        height: "42px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          backgroundColor: "#007bff",
+                          color: "white",
+                          padding: "8px 12px",
+                          borderRadius: "4px 0 0 4px",
+                          fontSize: "14px",
+                          fontWeight: "500",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          boxSizing: "border-box",
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                      >
+                        Choose File
+                      </span>
+                    </div>
+                    <div style={{ marginTop: "8px" }}>
+                      <RemarkFileStatusDisplay
+                        remark={remark}
+                        fileInputId={`remarkFile-${remark.id}`}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

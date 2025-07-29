@@ -1,9 +1,49 @@
 const Case = require("../models/Case");
+const path = require("path");
+const fs = require("fs");
 
 // Create a new case
 exports.createCase = async (req, res) => {
   try {
-    const newCase = new Case(req.body);
+    const caseData = { ...req.body };
+
+    // Parse JSON strings from FormData
+    if (caseData.judges && typeof caseData.judges === "string") {
+      try {
+        caseData.judges = JSON.parse(caseData.judges);
+      } catch (e) {
+        // If parsing fails, treat as single value
+        caseData.judges = [caseData.judges];
+      }
+    }
+
+    if (caseData.caseRemarks && typeof caseData.caseRemarks === "string") {
+      try {
+        caseData.caseRemarks = JSON.parse(caseData.caseRemarks);
+      } catch (e) {
+        caseData.caseRemarks = [];
+      }
+    }
+
+    // Handle main file upload
+    if (req.files && req.files.caseFile) {
+      caseData.files = [req.files.caseFile[0].filename];
+    }
+
+    // Handle case remarks files
+    if (caseData.caseRemarks && Array.isArray(caseData.caseRemarks)) {
+      caseData.caseRemarks = caseData.caseRemarks.map((remark, index) => {
+        if (req.files && req.files[`remarkFile_${index}`]) {
+          return {
+            ...remark,
+            file: req.files[`remarkFile_${index}`][0].filename,
+          };
+        }
+        return remark;
+      });
+    }
+
+    const newCase = new Case(caseData);
     const saved = await newCase.save();
     res.status(201).json(saved);
   } catch (err) {
@@ -39,12 +79,63 @@ exports.getCaseById = async (req, res) => {
 // Update a case by ID
 exports.updateCase = async (req, res) => {
   try {
-    const updated = await Case.findByIdAndUpdate(req.params.id, req.body, {
+    console.log("Update request received for case:", req.params.id);
+    console.log("Request body keys:", Object.keys(req.body));
+    console.log("Files received:", req.files ? Object.keys(req.files) : "none");
+
+    const caseData = { ...req.body };
+
+    // Parse JSON strings from FormData
+    if (caseData.judges && typeof caseData.judges === "string") {
+      try {
+        caseData.judges = JSON.parse(caseData.judges);
+      } catch (e) {
+        console.log("Failed to parse judges:", e.message);
+        // If parsing fails, treat as single value
+        caseData.judges = [caseData.judges];
+      }
+    }
+
+    if (caseData.caseRemarks && typeof caseData.caseRemarks === "string") {
+      try {
+        caseData.caseRemarks = JSON.parse(caseData.caseRemarks);
+      } catch (e) {
+        console.log("Failed to parse caseRemarks:", e.message);
+        caseData.caseRemarks = [];
+      }
+    }
+
+    // Handle main file upload
+    if (req.files && req.files.caseFile) {
+      caseData.files = [req.files.caseFile[0].filename];
+    } else {
+      // If no new file uploaded, preserve existing files by not setting caseData.files
+      // This way MongoDB will keep the existing files array
+      delete caseData.files;
+    }
+
+    // Handle case remarks files
+    if (caseData.caseRemarks && Array.isArray(caseData.caseRemarks)) {
+      caseData.caseRemarks = caseData.caseRemarks.map((remark, index) => {
+        if (req.files && req.files[`remarkFile_${index}`]) {
+          return {
+            ...remark,
+            file: req.files[`remarkFile_${index}`][0].filename,
+          };
+        }
+        return remark;
+      });
+    }
+
+    console.log("Final caseData for update:", Object.keys(caseData));
+
+    const updated = await Case.findByIdAndUpdate(req.params.id, caseData, {
       new: true,
     });
     if (!updated) return res.status(404).json({ error: "Case not found" });
     res.json(updated);
   } catch (err) {
+    console.error("Update case error:", err);
     res.status(400).json({ error: err.message });
   }
 };
@@ -55,6 +146,29 @@ exports.deleteCase = async (req, res) => {
     const deleted = await Case.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: "Case not found" });
     res.json({ message: "Case deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Download file by filename
+exports.downloadFile = async (req, res) => {
+  try {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "../uploads", filename);
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    // Send file
+    res.download(filePath, filename, (err) => {
+      if (err) {
+        console.error("Download error:", err);
+        res.status(500).json({ error: "Error downloading file" });
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
