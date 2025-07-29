@@ -16,6 +16,23 @@ export default function LoginForm(props) {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-right">
+          <a
+            href="https://na.gov.pk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-image-placeholder"
+          >
+            <img
+              src={naLogo}
+              alt="National Assembly"
+              style={{ width: 150, height: 150, opacity: 0.8 }}
+            />
+            <span className="text-muted-foreground">
+              Welcome to the National Assembly of Pakistan
+            </span>
+          </a>
+        </div>
         <div className="auth-left">
           <a
             href="https://na.gov.pk"
@@ -101,30 +118,7 @@ export default function LoginForm(props) {
                 Login with Google
               </Button>
             </div>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link to="/signup" className="underline underline-offset-4">
-                Sign up
-              </Link>
-            </div>
           </form>
-        </div>
-        <div className="auth-right">
-          <a
-            href="https://na.gov.pk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="auth-image-placeholder"
-          >
-            <img
-              src={naLogo}
-              alt="National Assembly"
-              style={{ width: 150, height: 150, opacity: 0.8 }}
-            />
-            <span className="text-muted-foreground">
-              Welcome to the National Assembly of Pakistan
-            </span>
-          </a>
         </div>
       </div>
     </div>
