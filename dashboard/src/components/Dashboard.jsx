@@ -3,6 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import NA_Logo from "../assets/National_Assembly_of_Pakistan_-_Logo.png";
 import "../App.css";
+import {
+  FaFolderOpen,
+  FaHourglassHalf,
+  FaCheckCircle,
+  FaSpinner,
+  FaCalendarAlt,
+  FaLandmark,
+  FaUserTag,
+  FaBalanceScale,
+  FaGavel,
+  FaBook,
+} from "react-icons/fa";
+import { AlignCenter } from "lucide-react";
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
 
@@ -113,27 +126,31 @@ const Dashboard = () => {
       value: counts.totalCases,
       color: "blue-1",
       link: "/cases",
+      icon: <FaFolderOpen size={28} />,
     },
     {
       label: "Pending",
       value: counts.pending,
       color: "blue-2",
       link: "/cases",
-      status: "Pending",
+      search: "Pending",
+      icon: <FaHourglassHalf size={28} />,
     },
     {
       label: "Closed",
       value: counts.closed,
       color: "blue-3",
       link: "/cases",
-      status: "Closed",
+      search: "Closed",
+      icon: <FaCheckCircle size={28} />,
     },
     {
       label: "In Progress",
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
-      status: "In Progress",
+      search: "In Progress",
+      icon: <FaSpinner size={28} />,
     },
     {
       label: "Upcoming Cases",
@@ -141,36 +158,42 @@ const Dashboard = () => {
       color: "blue-5",
       link: "/cases",
       filter: "upcoming",
+      icon: <FaCalendarAlt size={28} />,
     },
     {
       label: "Departments",
       value: counts.departments,
       color: "blue-6",
       link: "/departments",
+      icon: <FaLandmark size={28} />,
     },
     {
       label: "Designations",
       value: counts.designations,
       color: "blue-7",
       link: "/designations",
+      icon: <FaUserTag size={28} />,
     },
     {
       label: "Courts",
       value: counts.courts,
       color: "blue-8",
       link: "/courts",
+      icon: <FaBalanceScale size={28} />,
     },
     {
       label: "Judges",
       value: counts.judges,
       color: "blue-9",
       link: "/judges",
+      icon: <FaGavel size={28} />,
     },
     {
       label: "Subject Matters",
       value: counts.subjectMatters,
       color: "blue-10",
       link: "/subject-matter",
+      icon: <FaBook size={28} />,
     },
   ];
 
@@ -221,17 +244,33 @@ const Dashboard = () => {
           {cardData.map((card, index) => {
             const content = (
               <div className={`card ${card.color}`}>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
-                >
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/4721/4721081.png"
-                    alt="icon"
-                    style={{ width: "28px", height: "28px" }}
-                  />
-                  <div>
-                    <h3>{card.value}</h3>
-                    <p>{card.label}</p>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div style={{ textAlign: "left" }}>
+                    <h3
+                      style={{
+                        marginLeft: 35,
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {card.value}
+                    </h3>
+                  </div>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    {card.icon}
+                    <p
+                      style={{ margin: 0, fontWeight: "500", fontSize: "15px" }}
+                    >
+                      {card.label}
+                    </p>
                   </div>
                 </div>
               </div>
