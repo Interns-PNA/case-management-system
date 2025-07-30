@@ -23,65 +23,7 @@ const CasesList = () => {
     fetchCases();
     fetchStatuses();
     fetchBenches();
-  }, []);
-
-  // Re-apply filtering when URL parameters change
-  useEffect(() => {
-    if (cases.length > 0) {
-      const params = new URLSearchParams(location.search);
-      const search = params.get("search");
-      const hearingDate = params.get("hearingDate");
-      const upcomingFrom = params.get("upcomingFrom");
-
-      if (search) {
-        setSearchTerm(search);
-      }
-
-      // Only filter if there are search parameters, otherwise show all cases
-      if (search || hearingDate || upcomingFrom) {
-        let filtered = cases;
-
-        if (search) {
-          filtered = filtered.filter(
-            (c) =>
-              c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
-              (c.caseTitle &&
-                c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
-              (c.ministry &&
-                c.ministry.toLowerCase().includes(search.toLowerCase())) ||
-              (c.subjectMatter &&
-                typeof c.subjectMatter === "string" &&
-                c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
-          );
-        }
-
-        if (hearingDate) {
-          filtered = filtered.filter((c) => {
-            if (!c.nextHearingDate) return false;
-            const caseHearingDate = new Date(c.nextHearingDate)
-              .toISOString()
-              .split("T")[0];
-            return caseHearingDate === hearingDate;
-          });
-        }
-
-        if (upcomingFrom) {
-          filtered = filtered.filter((c) => {
-            if (!c.nextHearingDate) return false;
-            const caseHearingDate = new Date(c.nextHearingDate)
-              .toISOString()
-              .split("T")[0];
-            return caseHearingDate >= upcomingFrom;
-          });
-        }
-
-        setFilteredCases(filtered);
-      } else {
-        // No filters applied, show all cases
-        setFilteredCases(cases);
-      }
-    }
-  }, [location.search, cases]);
+  }, [location.search]);
 
   const fetchBenches = async () => {
     try {
@@ -94,61 +36,38 @@ const CasesList = () => {
 
   const fetchCases = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/cases");
-      setCases(res.data);
-
-      // Apply URL parameter filtering after cases are loaded
-      const params = new URLSearchParams(window.location.search);
-      const search = params.get("search");
+      const params = new URLSearchParams(location.search);
+      const status = params.get("status");
       const hearingDate = params.get("hearingDate");
       const upcomingFrom = params.get("upcomingFrom");
 
-      if (search) {
-        setSearchTerm(search);
+      let apiUrl = "http://localhost:5000/api/cases";
+      const queryParams = new URLSearchParams();
+
+      if (status) {
+        queryParams.append("status", status);
+      }
+      if (hearingDate) {
+        queryParams.append("startDate", hearingDate);
+        queryParams.append("endDate", hearingDate);
+      }
+      if (upcomingFrom) {
+        queryParams.append("startDate", upcomingFrom);
       }
 
-      // Only filter if there are search parameters, otherwise show all cases
-      if (search || hearingDate || upcomingFrom) {
-        let filtered = res.data;
+      if (queryParams.toString()) {
+        apiUrl += `?${queryParams.toString()}`;
+      }
 
-        if (search) {
-          filtered = filtered.filter(
-            (c) =>
-              c.caseNo.toLowerCase().includes(search.toLowerCase()) ||
-              (c.caseTitle &&
-                c.caseTitle.toLowerCase().includes(search.toLowerCase())) ||
-              (c.ministry &&
-                c.ministry.toLowerCase().includes(search.toLowerCase())) ||
-              (c.subjectMatter &&
-                typeof c.subjectMatter === "string" &&
-                c.subjectMatter.toLowerCase().includes(search.toLowerCase()))
-          );
-        }
+      const res = await axios.get(apiUrl);
+      setCases(res.data);
+      setFilteredCases(res.data); // Always update filtered cases from fetch
 
-        if (hearingDate) {
-          filtered = filtered.filter((c) => {
-            if (!c.nextHearingDate) return false;
-            const caseHearingDate = new Date(c.nextHearingDate)
-              .toISOString()
-              .split("T")[0];
-            return caseHearingDate === hearingDate;
-          });
-        }
-
-        if (upcomingFrom) {
-          filtered = filtered.filter((c) => {
-            if (!c.nextHearingDate) return false;
-            const caseHearingDate = new Date(c.nextHearingDate)
-              .toISOString()
-              .split("T")[0];
-            return caseHearingDate >= upcomingFrom;
-          });
-        }
-
-        setFilteredCases(filtered);
+      // Set search term for display, but don't trigger filtering
+      if (status) {
+        setSearchTerm(status);
       } else {
-        // No filters applied, show all cases
-        setFilteredCases(res.data);
+        setSearchTerm(""); // Clear search term if no status filter
       }
     } catch (err) {
       console.error("Error fetching cases:", err);
@@ -171,6 +90,10 @@ const CasesList = () => {
 
   const handleSearch = (term) => {
     setSearchTerm(term);
+    if (term.trim() === "") {
+      setFilteredCases(cases); // If search is cleared, show all fetched cases
+      return;
+    }
     const filtered = cases.filter(
       (c) =>
         c.caseNo.toLowerCase().includes(term.toLowerCase()) ||

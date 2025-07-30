@@ -119,21 +119,21 @@ const Dashboard = () => {
       value: counts.pending,
       color: "blue-2",
       link: "/cases",
-      search: "Pending",
+      status: "Pending",
     },
     {
       label: "Closed",
       value: counts.closed,
       color: "blue-3",
       link: "/cases",
-      search: "Closed",
+      status: "Closed",
     },
     {
       label: "In Progress",
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
-      search: "In Progress",
+      status: "In Progress",
     },
     {
       label: "Upcoming Cases",
@@ -239,7 +239,9 @@ const Dashboard = () => {
 
             if (card.link) {
               let linkUrl = card.link;
-              if (card.search) {
+              if (card.status) {
+                linkUrl += `?status=${encodeURIComponent(card.status)}`;
+              } else if (card.search) {
                 linkUrl += `?search=${encodeURIComponent(card.search)}`;
               } else if (card.filter === "upcoming") {
                 // Get today's date in YYYY-MM-DD format

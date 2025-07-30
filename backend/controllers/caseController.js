@@ -57,7 +57,26 @@ exports.createCase = async (req, res) => {
 // Get all cases
 exports.getCases = async (req, res) => {
   try {
-    const cases = await Case.find().populate(
+    // Build filter object based on query parameters
+    let filter = {};
+
+    // Filter by status if provided
+    if (req.query.status) {
+      filter.status = req.query.status;
+    }
+
+    // Filter by date range if provided
+    if (req.query.startDate || req.query.endDate) {
+      filter.nextHearingDate = {};
+      if (req.query.startDate) {
+        filter.nextHearingDate.$gte = new Date(req.query.startDate);
+      }
+      if (req.query.endDate) {
+        filter.nextHearingDate.$lte = new Date(req.query.endDate);
+      }
+    }
+
+    const cases = await Case.find(filter).populate(
       "court judges subjectMatter location"
     );
     res.json(cases);
