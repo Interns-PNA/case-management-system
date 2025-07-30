@@ -3,8 +3,10 @@ import axios from "axios";
 import AddDesignationModal from "./AddDesignationModal";
 import EditDesignationModal from "./EditDesignationModal";
 import SearchBar from "./SearchBar"; // ✅ Reusable search bar
+import { useAuth } from "../contexts/AuthContext";
 
 const DesignationsList = () => {
+  const { canWrite } = useAuth();
   const [designations, setDesignations] = useState([]);
   const [filteredDesignations, setFilteredDesignations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,9 +85,13 @@ const DesignationsList = () => {
           onSearch={handleSearch}
           placeholder="Search designations..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Designation
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Designation
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="designations-table-content">
@@ -112,18 +118,22 @@ const DesignationsList = () => {
               <span>{designation.details || "–"}</span>
               <span>{designation.department?.name || "–"}</span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditDesignation(designation)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteDesignation(designation._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditDesignation(designation)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteDesignation(designation._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

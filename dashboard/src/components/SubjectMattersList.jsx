@@ -1,11 +1,12 @@
-// ✅ SubjectMattersList.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import AddSubjectModal from "./AddSubjectModal";
 import EditSubjectModal from "./EditSubjectModal";
-import SearchBar from "./SearchBar"; // ✅ Importing reusable search bar
+import SearchBar from "./SearchBar"; // ✅ Import SearchBar
 
 const SubjectMattersList = () => {
+  const { canWrite } = useAuth();
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]); // ✅ State to store filtered list
   const [searchTerm, setSearchTerm] = useState(""); // ✅ State to store search term
@@ -77,9 +78,13 @@ const SubjectMattersList = () => {
           onSearch={handleSearch}
           placeholder="Search subject matter..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Subject
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Subject
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="courts-table">
@@ -101,18 +106,22 @@ const SubjectMattersList = () => {
               <span>{index + 1}</span>
               <span>{subject.name}</span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditSubject(subject)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteSubject(subject._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditSubject(subject)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteSubject(subject._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

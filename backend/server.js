@@ -31,6 +31,7 @@ app.use("/api/subject-matter", subjectMatterRoutes); // path must match frontend
 app.use("/api/departments", departmentRoutes);
 app.use("/api/designations", designationRoutes);
 app.use("/api/statuses", statusRoutes);
+app.use("/api/users", require("./routes/userRoutes"));
 
 // Add more routes as needed
 

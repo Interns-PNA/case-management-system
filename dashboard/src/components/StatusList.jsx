@@ -3,8 +3,10 @@ import axios from "axios";
 import AddStatusModal from "./AddStatusModal";
 import EditStatusModal from "./EditStatusModal";
 import SearchBar from "../components/SearchBar"; // ✅ Ensure correct path
+import { useAuth } from "../contexts/AuthContext";
 
 const StatusList = () => {
+  const { canWrite } = useAuth();
   const [statuses, setStatuses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -68,9 +70,13 @@ const StatusList = () => {
           placeholder="Search status..."
           onSearch={(value) => setSearchTerm(value)}
         />
-        <button className="btn-add" onClick={() => setShowAddModal(true)}>
-          Add Status
-        </button>
+        <div>
+          {canWrite() && (
+            <button className="btn-add" onClick={() => setShowAddModal(true)}>
+              Add Status
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ✅ Use shared SearchBar component */}
@@ -91,18 +97,22 @@ const StatusList = () => {
               <span>{index + 1}</span>
               <span>{status.name}</span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditStatus(status)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteStatus(status._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditStatus(status)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteStatus(status._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

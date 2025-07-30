@@ -1,8 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header = ({ toggleSidebar }) => {
   const navigate = useNavigate();
+  const { canWrite } = useAuth();
 
   const handleAddCaseClick = () => {
     navigate("/form");
@@ -10,10 +12,16 @@ const Header = ({ toggleSidebar }) => {
 
   return (
     <div className="header">
-      <button className="menu-btn" onClick={toggleSidebar}>☰</button>
+      <button className="menu-btn" onClick={toggleSidebar}>
+        ☰
+      </button>
       <h1>Dashboard</h1>
       <div>
-        <button onClick={handleAddCaseClick} className="submit-btn">Add Case</button>
+        {canWrite() && (
+          <button onClick={handleAddCaseClick} className="submit-btn">
+            Add Case
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import AddBenchesModal from "./AddBenchesModal";
 import EditBenchesModal from "./EditBenchesModal";
 import SearchBar from "./SearchBar";
 
 const BenchesList = () => {
+  const { canWrite } = useAuth();
   const [benches, setBenches] = useState([]);
   const [filteredBenches, setFilteredBenches] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,9 +83,13 @@ const BenchesList = () => {
           onSearch={handleSearch}
           placeholder="Search Benches..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Bench
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Bench
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="courts-table">
@@ -122,18 +128,22 @@ const BenchesList = () => {
                 </ul>
               </span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditBench(bench)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteBench(bench._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditBench(bench)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteBench(bench._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

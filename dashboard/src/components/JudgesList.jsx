@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import AddJudgeModal from "./AddJudgeModal";
 import EditJudgeModal from "./EditJudgeModal";
 import SearchBar from "./SearchBar"; // ✅ Importing reusable SearchBar
 
 const JudgesList = () => {
+  const { canWrite } = useAuth();
   const [judges, setJudges] = useState([]);
   const [filteredJudges, setFilteredJudges] = useState([]); // ✅ filtered state
   const [searchTerm, setSearchTerm] = useState(""); // ✅ search term
@@ -81,9 +83,13 @@ const JudgesList = () => {
           placeholder="Search Judges..."
         />
 
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Judge
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Judge
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="judges-table">
@@ -111,18 +117,22 @@ const JudgesList = () => {
               <span>{judge.court?.name || "-"}</span>
               <span>{judge.location?.name || "-"}</span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditJudge(judge)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteJudge(judge._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditJudge(judge)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteJudge(judge._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

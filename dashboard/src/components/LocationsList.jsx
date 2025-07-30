@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import AddLocationModal from "./AddLocationModal";
 import EditLocationModal from "./EditLocationModal";
-import SearchBar from "./SearchBar"; // ✅ Importing reusable SearchBar
+import SearchBar from "./SearchBar"; // ✅ Import SearchBar
 
 const LocationsList = () => {
+  const { canWrite } = useAuth();
   const [locations, setLocations] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]); // ✅ Filtered results
   const [searchTerm, setSearchTerm] = useState(""); // ✅ Search term
@@ -87,9 +89,13 @@ const LocationsList = () => {
           placeholder="Search Locations..."
         />
 
-        <button onClick={() => setShowModal(true)} className="btn-add">
-          Add Location
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowModal(true)} className="btn-add">
+              Add Location
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="courts-table">
@@ -105,18 +111,22 @@ const LocationsList = () => {
             <span>{index + 1}</span>
             <span>{loc.name}</span>
             <span>
-              <button
-                className="btn-edit"
-                onClick={() => handleEditLocation(loc)}
-              >
-                Edit
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => handleDeleteLocation(loc._id)}
-              >
-                Delete
-              </button>
+              {canWrite() && (
+                <>
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleEditLocation(loc)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteLocation(loc._id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
             </span>
           </div>
         ))}

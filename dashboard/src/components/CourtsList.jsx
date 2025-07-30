@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import AddCourtModal from "./AddCourtModal";
 import EditCourtModal from "./EditCourtModal";
 import SearchBar from "./SearchBar"; // ✅ Importing reusable search bar
 
 const CourtsList = () => {
+  const { canWrite } = useAuth();
   const [courts, setCourts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editCourt, setEditCourt] = useState(null);
@@ -84,9 +86,13 @@ const CourtsList = () => {
           onSearch={handleSearch}
           placeholder="Search Courts..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Court
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Court
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="courts-table">
@@ -125,18 +131,22 @@ const CourtsList = () => {
                 </ul>
               </span>
               <span>
-                <button
-                  className="btn-edit"
-                  onClick={() => setEditCourt(court)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteCourt(court._id)}
-                >
-                  Delete
-                </button>
+                {canWrite() && (
+                  <>
+                    <button
+                      className="btn-edit"
+                      onClick={() => setEditCourt(court)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteCourt(court._id)}
+                    >
+                      Delete
+                    </button>
+                  </>
+                )}
               </span>
             </div>
           ))

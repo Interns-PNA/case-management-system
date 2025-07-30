@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
 import SearchBar from "./SearchBar";
 import { Edit, Trash2, Eye } from "lucide-react";
 import CaseForm from "./CaseForm";
 import { Link, useLocation } from "react-router-dom";
 
 const CasesList = () => {
+  const { canWrite } = useAuth();
   const location = useLocation();
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
@@ -334,7 +336,9 @@ const CasesList = () => {
 
       <div
         style={{
-          padding: "0px",
+          display: "flex",
+          justifyContent: "space-between",
+          padding: "20px 20px 0 20px",
           margin: "0px",
         }}
         className="courts-header"
@@ -345,9 +349,7 @@ const CasesList = () => {
           onSearch={handleSearch}
           placeholder="Search Cases..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Case
-        </button>
+        <div style={{ width: "100px", height: "40px" }}></div>
       </div>
 
       <div className="departments-table">
@@ -422,29 +424,33 @@ const CasesList = () => {
               >
                 <Eye size={18} />
               </button>
-              <button
-                className="btn-edit"
-                onClick={async () => {
-                  try {
-                    const res = await axios.get(
-                      `http://localhost:5000/api/cases/${c._id}`
-                    );
-                    setEditCase(res.data);
-                  } catch {
-                    alert("Failed to fetch case details for editing.");
-                  }
-                }}
-                title="Edit"
-              >
-                <Edit size={18} />
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => handleDeleteCase(c._id)}
-                title="Delete"
-              >
-                <Trash2 size={18} />
-              </button>
+              {canWrite() && (
+                <>
+                  <button
+                    className="btn-edit"
+                    onClick={async () => {
+                      try {
+                        const res = await axios.get(
+                          `http://localhost:5000/api/cases/${c._id}`
+                        );
+                        setEditCase(res.data);
+                      } catch {
+                        alert("Failed to fetch case details for editing.");
+                      }
+                    }}
+                    title="Edit"
+                  >
+                    <Edit size={18} />
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteCase(c._id)}
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </>
+              )}
             </span>
             {/* View Modal */}
             {viewCase && (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo from "../assets/logo.png";
+import NA_Logo from "../assets/National_Assembly_of_Pakistan_-_Logo.png";
 import "../App.css";
 
 const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
@@ -111,65 +111,65 @@ const Dashboard = () => {
     {
       label: "Total Cases",
       value: counts.totalCases,
-      color: "blue",
+      color: "blue-1",
       link: "/cases",
     },
     {
       label: "Pending",
       value: counts.pending,
-      color: "yellow",
+      color: "blue-2",
       link: "/cases",
       search: "Pending",
     },
     {
       label: "Closed",
       value: counts.closed,
-      color: "green",
+      color: "blue-3",
       link: "/cases",
       search: "Closed",
     },
     {
       label: "In Progress",
       value: counts.inProgress,
-      color: "purple",
+      color: "blue-4",
       link: "/cases",
       search: "In Progress",
     },
     {
       label: "Upcoming Cases",
       value: counts.upcoming,
-      color: "blue",
+      color: "blue-5",
       link: "/cases",
       filter: "upcoming",
     },
     {
       label: "Departments",
       value: counts.departments,
-      color: "purple",
+      color: "blue-6",
       link: "/departments",
     },
     {
       label: "Designations",
       value: counts.designations,
-      color: "yellow",
+      color: "blue-7",
       link: "/designations",
     },
     {
-      label: "Total No Of Courts",
+      label: "Courts",
       value: counts.courts,
-      color: "green",
+      color: "blue-8",
       link: "/courts",
     },
     {
-      label: "Total No of Judges",
+      label: "Judges",
       value: counts.judges,
-      color: "blue",
+      color: "blue-9",
       link: "/judges",
     },
     {
-      label: "Total No of Subject Matter",
+      label: "Subject Matters",
       value: counts.subjectMatters,
-      color: "purple",
+      color: "blue-10",
       link: "/subject-matter",
     },
   ];
@@ -213,7 +213,7 @@ const Dashboard = () => {
   return (
     <div
       className="dashboard-background"
-      style={{ backgroundImage: `url(${logo})` }}
+      style={{ backgroundImage: `url(${NA_Logo})` }}
     >
       <div className="dashboard-wrapper">
         {/* Card Grid */}

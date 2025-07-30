@@ -4,8 +4,10 @@ import axios from "axios";
 import AddDepartmentModal from "./AddDepartmentModal";
 import EditDepartmentModal from "./EditDepartmentModal";
 import SearchBar from "./SearchBar"; // ✅ Reuse search bar
+import { useAuth } from "../contexts/AuthContext";
 
 const DepartmentsList = () => {
+  const { canWrite } = useAuth();
   const [departments, setDepartments] = useState([]);
   const [filteredDepartments, setFilteredDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -80,9 +82,13 @@ const DepartmentsList = () => {
           onSearch={handleSearch}
           placeholder="Search Departments..."
         />
-        <button onClick={() => setShowAddModal(true)} className="btn-add">
-          Add Department
-        </button>
+        <div>
+          {canWrite() && (
+            <button onClick={() => setShowAddModal(true)} className="btn-add">
+              Add Department
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="departments-table">
@@ -101,15 +107,22 @@ const DepartmentsList = () => {
             <span>{dept.details || "–"}</span>
             <span>{dept.cases || 0}</span>
             <span className="actions">
-              <button className="btn-edit" onClick={() => setEditDept(dept)}>
-                Edit
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => handleDeleteDepartment(dept._id)}
-              >
-                Delete
-              </button>
+              {canWrite() && (
+                <>
+                  <button
+                    className="btn-edit"
+                    onClick={() => setEditDept(dept)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteDepartment(dept._id)}
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
             </span>
           </div>
         ))}

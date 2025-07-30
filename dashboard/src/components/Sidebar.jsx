@@ -1,9 +1,11 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout, isAdmin } = useAuth();
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard" },
@@ -19,15 +21,13 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   ];
 
   const handleLogout = () => {
-    // Clear any authentication tokens/data
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userSession");
-    sessionStorage.clear();
+    // Use AuthContext logout
+    logout();
 
     // Close sidebar if open
     closeSidebar();
 
-    // Navigate to sign-up page
+    // Navigate to login page
     navigate("/");
   };
 
@@ -51,6 +51,42 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           </li>
         ))}
       </ul>
+
+      {/* User Management Button - Admin Only */}
+      {isAdmin() && (
+        <div className="sidebar-user-management">
+          <button
+            onClick={() => navigate("/user-management")}
+            className="user-management-btn"
+          >
+            <span>User Management</span>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <circle
+                cx="12"
+                cy="7"
+                r="4"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Logout Button at the bottom */}
       <div className="sidebar-logout">

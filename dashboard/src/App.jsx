@@ -6,6 +6,8 @@ import {
   Navigate,
 } from "react-router-dom";
 
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import Dashboard from "./components/Dashboard";
@@ -20,184 +22,204 @@ import DesignationsList from "./components/DesignationsList";
 import DepartmentsList from "./components/DepartmentsList";
 import CasesList from "./components/CasesList";
 import LoginForm from "./components/login-form";
-import SignupForm from "./components/signup-form";
+import UserManagementModule from "./components/UserManagementModule";
 import "./App.css";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/signup" element={<SignupForm />} />
-        <Route
-          path="/dashboard"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <Dashboard />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginForm />} />
+          <Route
+            path="/dashboard"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <Dashboard />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/cases"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <CasesList />
+            }
+          />
+          <Route
+            path="/cases"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <CasesList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/courts"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <CourtsList />
+            }
+          />
+          <Route
+            path="/courts"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <CourtsList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/benches"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <BenchesList />
+            }
+          />
+          <Route
+            path="/benches"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <BenchesList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/locations"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <LocationsList />
+            }
+          />
+          <Route
+            path="/locations"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <LocationsList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/judges"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <JudgesList />
+            }
+          />
+          <Route
+            path="/judges"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <JudgesList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/subject-matter"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <SubjectMatterList />
+            }
+          />
+          <Route
+            path="/subject-matter"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <SubjectMatterList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/statuses"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <StatusList />
+            }
+          />
+          <Route
+            path="/statuses"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <StatusList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/designations"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <DesignationsList />
+            }
+          />
+          <Route
+            path="/designations"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <DesignationsList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/departments"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <DepartmentsList />
+            }
+          />
+          <Route
+            path="/departments"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <DepartmentsList />
+                </div>
               </div>
-            </div>
-          }
-        />
-        <Route
-          path="/form"
-          element={
-            <div className="app-container">
-              <Sidebar
-                isOpen={sidebarOpen}
-                closeSidebar={() => setSidebarOpen(false)}
-              />
-              <div className="main-content">
-                <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-                <CaseForm />
+            }
+          />
+          <Route
+            path="/form"
+            element={
+              <div className="app-container">
+                <Sidebar
+                  isOpen={sidebarOpen}
+                  closeSidebar={() => setSidebarOpen(false)}
+                />
+                <div className="main-content">
+                  <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                  <CaseForm />
+                </div>
               </div>
-            </div>
-          }
-        />
-      </Routes>
-    </Router>
+            }
+          />
+          <Route
+            path="/user-management"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <div className="app-container">
+                  <Sidebar
+                    isOpen={sidebarOpen}
+                    closeSidebar={() => setSidebarOpen(false)}
+                  />
+                  <div className="main-content">
+                    <Header
+                      toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                    />
+                    <UserManagementModule />
+                  </div>
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
