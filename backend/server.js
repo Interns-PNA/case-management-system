@@ -21,16 +21,20 @@ async function ensureAdminUser() {
       const newAdmin = new User({
         username: "admin",
         password: "admin1",
+        fullName: "Admin", // Required field
         permission: "read-write",
       });
       await newAdmin.save();
       console.log("Default admin user created: admin / admin1");
     } else {
-      // Always reset admin password and permission on server start
+      // Always reset admin password, permission, and fullName on server start
       admin.password = "admin1"; // Will be re-hashed by pre-save
       admin.permission = "read-write";
+      admin.fullName = "Admin";
       await admin.save();
-      console.log("Admin user password and permission reset to default");
+      console.log(
+        "Admin user password, permission, and fullName reset to default"
+      );
     }
   } catch (err) {
     console.error("Error ensuring admin user:", err);
