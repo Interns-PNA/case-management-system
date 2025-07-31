@@ -78,7 +78,7 @@ const CourtsList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Courts</h2>
+        <h2 className="section-title">Courts</h2>
 
         {/* ✅ Reusable Search Bar Component */}
         <SearchBar

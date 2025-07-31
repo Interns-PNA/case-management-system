@@ -77,7 +77,7 @@ const BenchesList = () => {
   return (
     <div className="benches-list">
       <div className="courts-header">
-        <h2>Benches</h2>
+        <h2 className="section-title">Benches</h2>
         <SearchBar
           searchTerm={searchTerm}
           onSearch={handleSearch}

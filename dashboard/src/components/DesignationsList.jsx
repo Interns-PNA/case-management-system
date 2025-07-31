@@ -79,7 +79,7 @@ const DesignationsList = () => {
         style={{ margin: "0px", padding: "10px 0" }}
         className="courts-header"
       >
-        <h2>Designations</h2>
+        <h2 className="section-title">Designations</h2>
         <SearchBar
           searchTerm={searchTerm}
           onSearch={handleSearch}

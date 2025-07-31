@@ -65,7 +65,7 @@ const StatusList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Status List</h2>
+        <h2 className="section-title">Status List</h2>
         <SearchBar
           placeholder="Search status..."
           onSearch={(value) => setSearchTerm(value)}

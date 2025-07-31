@@ -71,7 +71,7 @@ const SubjectMattersList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Subject Matters</h2>
+        <h2 className="section-title">Subject Matters</h2>
         {/* ✅ Reusable Search Bar Component */}
         <SearchBar
           searchTerm={searchTerm}

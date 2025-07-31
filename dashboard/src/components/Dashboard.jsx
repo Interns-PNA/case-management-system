@@ -238,6 +238,8 @@ const Dashboard = () => {
       className="dashboard-background"
       style={{ backgroundImage: `url(${NA_Logo})` }}
     >
+      {/* Dashboard Title */}
+      <h1 className="section-title">Dashboard</h1>
       <div className="dashboard-wrapper">
         {/* Card Grid */}
         <div className="dashboard">

@@ -80,7 +80,7 @@ const LocationsList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Locations</h2>
+        <h2 className="section-title">Locations</h2>
 
         {/* ✅ SearchBar Component before Add Button */}
         <SearchBar

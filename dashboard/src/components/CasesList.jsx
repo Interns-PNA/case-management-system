@@ -266,7 +266,7 @@ const CasesList = () => {
         }}
         className="courts-header"
       >
-        <h2>Cases</h2>
+        <h2 className="section-title">Cases</h2>
         <SearchBar
           searchTerm={searchTerm}
           onSearch={handleSearch}

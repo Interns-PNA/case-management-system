@@ -74,7 +74,7 @@ const JudgesList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Judges</h2>
+        <h2 className="section-title">Judges</h2>
 
         {/* ✅ Reusable Search Bar */}
         <SearchBar

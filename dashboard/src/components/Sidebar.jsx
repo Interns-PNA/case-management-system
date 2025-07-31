@@ -1,6 +1,19 @@
 import React from "react";
+import naLogo from "../assets/na.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  LayoutDashboard,
+  FolderKanban,
+  MapPin,
+  Gavel,
+  Users,
+  Layers,
+  Building2,
+  BadgePercent,
+  Tag,
+  BookText,
+} from "lucide-react";
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const location = useLocation();
@@ -8,16 +21,56 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   const { logout, isAdmin } = useAuth();
 
   const menuItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Cases", path: "/cases" },
-    { name: "Locations", path: "/locations" },
-    { name: "Courts", path: "/courts" },
-    { name: "Judges", path: "/judges" }, // ✅ Added properly
-    { name: "Benches", path: "/benches" },
-    { name: "Departments", path: "/departments" },
-    { name: "Designations", path: "/designations" },
-    { name: "Statuses", path: "/statuses" },
-    { name: "Subject Matter", path: "/subject-matter" },
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: <LayoutDashboard size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Cases",
+      path: "/cases",
+      icon: <FolderKanban size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Locations",
+      path: "/locations",
+      icon: <MapPin size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Courts",
+      path: "/courts",
+      icon: <Gavel size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Judges",
+      path: "/judges",
+      icon: <Users size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Benches",
+      path: "/benches",
+      icon: <Layers size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Departments",
+      path: "/departments",
+      icon: <Building2 size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Designations",
+      path: "/designations",
+      icon: <BadgePercent size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Statuses",
+      path: "/statuses",
+      icon: <Tag size={18} style={{ marginRight: 8 }} />,
+    },
+    {
+      name: "Subject Matter",
+      path: "/subject-matter",
+      icon: <BookText size={18} style={{ marginRight: 8 }} />,
+    },
   ];
 
   const handleLogout = () => {
@@ -38,18 +91,58 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         ×
       </button>
 
-      <h2>Case System</h2>
-      <ul>
-        {menuItems.map((item, index) => (
-          <li
-            key={index}
-            className={location.pathname === item.path ? "active" : ""}
-          >
-            <Link to={item.path} onClick={closeSidebar}>
-              {item.name}
-            </Link>
-          </li>
-        ))}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          margin: "18px 0 25px 0",
+        }}
+      >
+        <img
+          src={naLogo}
+          alt="NA Logo"
+          style={{ width: 48, height: 48, objectFit: "contain" }}
+        />
+      </div>
+      <ul style={{ padding: 0, margin: 0, listStyle: "none" }}>
+        {menuItems.map((item, index) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <li
+              key={index}
+              className={isActive ? "active" : ""}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                borderRadius: 8,
+                margin: "2px 0",
+                background: isActive ? "#e8f0fe" : "transparent",
+                transition: "background 0.2s",
+              }}
+            >
+              <Link
+                to={item.path}
+                onClick={closeSidebar}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  width: "100%",
+                  color: isActive ? "#1967d2" : "#222",
+                  fontWeight: isActive ? 600 : 400,
+                  textDecoration: "none",
+                  padding: "1px 10px",
+                  borderRadius: 8,
+                  background: "none",
+                  transition: "color 0.2s",
+                }}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
 
       {/* User Management Button - Admin Only */}

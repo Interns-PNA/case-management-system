@@ -76,7 +76,7 @@ const DepartmentsList = () => {
   return (
     <div className="courts-list">
       <div className="courts-header">
-        <h2>Departments</h2>
+        <h2 className="section-title">Departments</h2>
         <SearchBar
           searchTerm={searchTerm}
           onSearch={handleSearch}
