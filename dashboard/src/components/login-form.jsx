@@ -15,6 +15,7 @@ export default function LoginForm(props) {
     username: "",
     password: "",
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -44,8 +45,8 @@ export default function LoginForm(props) {
         }
       );
 
-      // Store user data using AuthContext
-      login(response.data.user);
+      // Store user data using AuthContext, pass rememberMe
+      login(response.data.user, rememberMe);
 
       // Navigate to dashboard
       navigate("/dashboard");
@@ -141,6 +142,18 @@ export default function LoginForm(props) {
                   onChange={handleInputChange}
                   required
                 />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  style={{ width: 16, height: 16 }}
+                />
+                <label htmlFor="rememberMe" style={{ fontSize: 14, color: "#444" }}>
+                  Remember Me
+                </label>
               </div>
               <Button
                 type="submit"
