@@ -16,6 +16,7 @@ export default function LoginForm(props) {
     username: "",
     password: "",
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -45,8 +46,8 @@ export default function LoginForm(props) {
         }
       );
 
-      // Store user data using AuthContext
-      login(response.data.user);
+      // Store user data using AuthContext, pass rememberMe
+      login(response.data.user, rememberMe);
 
       // Show Sonner toast on top
       toast.success("Login successful!", {
@@ -179,5 +180,110 @@ export default function LoginForm(props) {
         </div>
       </div>
     </>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-right">
+          <a
+            href="https://na.gov.pk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-image-placeholder"
+          >
+            <img
+              src={naLogo}
+              alt="National Assembly"
+              style={{ width: 150, height: 150, opacity: 0.8 }}
+            />
+            <span className="text-muted-foreground">
+              Welcome to the National Assembly of Pakistan
+            </span>
+          </a>
+        </div>
+        <div className="auth-left">
+          <a
+            href="https://na.gov.pk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="auth-logo"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <img
+              src={naLogo}
+              alt="National Assembly"
+              style={{ width: "40px", height: "40px" }}
+            />
+            <span className="font-semibold text-lg text-gray-600">
+              National Assembly of Pakistan
+            </span>
+          </a>
+          <form
+            className="flex flex-col gap-6"
+            style={{ minWidth: 320 }}
+            onSubmit={handleLogin}
+            {...props}
+          >
+            <div className="flex flex-col items-center gap-2 text-center">
+              <h1 className="text-2xl font-bold">Login to your account</h1>
+              <p className="text-muted-foreground text-sm text-balance">
+                Enter your username below to login to your account
+              </p>
+            </div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
+                {error}
+              </div>
+            )}
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="grid gap-3">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="password">Password</Label>
+                </div>
+                <Input
+                  id="password"
+                  name="password"
+                  placeholder="**********"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  style={{ width: 16, height: 16 }}
+                />
+                <label htmlFor="rememberMe" style={{ fontSize: 14, color: "#444" }}>
+                  Remember Me
+                </label>
+              </div>
+              <Button
+                type="submit"
+                disabled={loading}
+                style={{ backgroundColor: "#2563eb", color: "white" }}
+                className="w-full"
+              >
+                {loading ? "Logging in..." : "Login"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 }

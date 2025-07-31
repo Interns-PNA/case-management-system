@@ -16,10 +16,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on app load
-    const storedUser = localStorage.getItem("user");
-    const isAuth = localStorage.getItem("isAuthenticated");
-
+    // Check sessionStorage first, then localStorage
+    let storedUser = sessionStorage.getItem("user");
+    let isAuth = sessionStorage.getItem("isAuthenticated");
+    let from = "session";
+    if (!storedUser || isAuth !== "true") {
+      storedUser = localStorage.getItem("user");
+      isAuth = localStorage.getItem("isAuthenticated");
+      from = "local";
+    }
     if (storedUser && isAuth === "true") {
       try {
         const userData = JSON.parse(storedUser);
@@ -28,18 +33,34 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error("Error parsing stored user data:", error);
         // Clear invalid data
-        localStorage.removeItem("user");
-        localStorage.removeItem("isAuthenticated");
+        if (from === "session") {
+          sessionStorage.removeItem("user");
+          sessionStorage.removeItem("isAuthenticated");
+        } else {
+          localStorage.removeItem("user");
+          localStorage.removeItem("isAuthenticated");
+        }
       }
     }
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
+
+  // loginWithRemember: userData, remember (bool)
+  const login = (userData, remember = false) => {
     setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("isAuthenticated", "true");
+    if (remember) {
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("isAuthenticated", "true");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("isAuthenticated");
+    } else {
+      sessionStorage.setItem("user", JSON.stringify(userData));
+      sessionStorage.setItem("isAuthenticated", "true");
+      localStorage.removeItem("user");
+      localStorage.removeItem("isAuthenticated");
+    }
   };
 
   const logout = () => {
@@ -49,7 +70,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("authToken");
     localStorage.removeItem("userSession");
-    sessionStorage.clear();
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("isAuthenticated");
   };
 
   // Permission checking functions
