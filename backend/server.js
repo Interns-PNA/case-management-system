@@ -9,9 +9,38 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const designationRoutes = require("./routes/designations");
 const statusRoutes = require("./routes/statusRoutes");
 
+const User = require("./models/User");
 const app = express();
 dotenv.config();
-connectDB();
+
+// Ensure admin user exists
+async function ensureAdminUser() {
+  try {
+    const admin = await User.findOne({ username: "admin" });
+    if (!admin) {
+      const newAdmin = new User({
+        username: "admin",
+        password: "admin1",
+        permission: "read-write",
+      });
+      await newAdmin.save();
+      console.log("Default admin user created: admin / admin1");
+    } else {
+      // Always reset admin password and permission on server start
+      admin.password = "admin1"; // Will be re-hashed by pre-save
+      admin.permission = "read-write";
+      await admin.save();
+      console.log("Admin user password and permission reset to default");
+    }
+  } catch (err) {
+    console.error("Error ensuring admin user:", err);
+  }
+}
+
+// Call ensureAdminUser only after DB is connected
+connectDB().then(() => {
+  ensureAdminUser();
+});
 
 app.use(cors());
 app.use(express.json());

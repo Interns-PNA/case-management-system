@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import "./CaseForm.css";
 import axios from "axios";
@@ -402,7 +403,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
           "Content-Type": "multipart/form-data",
         },
       });
-      alert("Case submitted successfully!");
+      toast.success("Case submitted successfully!");
       if (onCancel) onCancel(); // to close the form
     } catch (error) {
       console.error("Submit failed:", error);
