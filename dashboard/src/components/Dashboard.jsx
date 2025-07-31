@@ -133,7 +133,7 @@ const Dashboard = () => {
       value: counts.pending,
       color: "blue-2",
       link: "/cases",
-      search: "Pending",
+      status: "Pending",
       icon: <FaHourglassHalf size={28} />,
     },
     {
@@ -141,7 +141,7 @@ const Dashboard = () => {
       value: counts.closed,
       color: "blue-3",
       link: "/cases",
-      search: "Closed",
+      status: "Closed",
       icon: <FaCheckCircle size={28} />,
     },
     {
@@ -149,7 +149,7 @@ const Dashboard = () => {
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
-      search: "In Progress",
+      status: "In Progress",
       icon: <FaSpinner size={28} />,
     },
     {
