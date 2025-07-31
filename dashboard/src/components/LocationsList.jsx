@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar"; // ✅ Import SearchBar
+import { Edit, Trash2 } from "lucide-react";
 import AddLocationModal from "./AddLocationModal";
 import EditLocationModal from "./EditLocationModal";
-import SearchBar from "./SearchBar"; // ✅ Import SearchBar
 
 const LocationsList = () => {
   const { canWrite } = useAuth();
@@ -110,20 +111,22 @@ const LocationsList = () => {
           <div className="courts-table-row" key={index}>
             <span>{index + 1}</span>
             <span>{loc.name}</span>
-            <span>
+            <span className="actions-container">
               {canWrite() && (
                 <>
                   <button
                     className="btn-edit"
                     onClick={() => handleEditLocation(loc)}
+                    title="Edit"
                   >
-                    Edit
+                    <Edit size={18} />
                   </button>
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteLocation(loc._id)}
+                    title="Delete"
                   >
-                    Delete
+                    <Trash2 size={18} />
                   </button>
                 </>
               )}

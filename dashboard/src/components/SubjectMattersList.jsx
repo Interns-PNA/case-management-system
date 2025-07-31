@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar"; // ✅ Import SearchBar
+import { Edit, Trash2 } from "lucide-react";
 import AddSubjectModal from "./AddSubjectModal";
 import EditSubjectModal from "./EditSubjectModal";
-import SearchBar from "./SearchBar"; // ✅ Import SearchBar
 
 const SubjectMattersList = () => {
   const { canWrite } = useAuth();
@@ -105,20 +106,22 @@ const SubjectMattersList = () => {
             <div className="courts-table-row" key={subject._id}>
               <span>{index + 1}</span>
               <span>{subject.name}</span>
-              <span>
+              <span className="actions-container">
                 {canWrite() && (
                   <>
                     <button
                       className="btn-edit"
                       onClick={() => setEditSubject(subject)}
+                      title="Edit"
                     >
-                      Edit
+                      <Edit size={18} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteSubject(subject._id)}
+                      title="Delete"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
                   </>
                 )}

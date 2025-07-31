@@ -4,6 +4,7 @@ import AddStatusModal from "./AddStatusModal";
 import EditStatusModal from "./EditStatusModal";
 import SearchBar from "../components/SearchBar"; // ✅ Ensure correct path
 import { useAuth } from "../contexts/AuthContext";
+import { Edit, Trash2 } from "lucide-react";
 
 const StatusList = () => {
   const { canWrite } = useAuth();
@@ -96,20 +97,22 @@ const StatusList = () => {
             <div className="courts-table-row" key={status._id}>
               <span>{index + 1}</span>
               <span>{status.name}</span>
-              <span>
+              <span className="actions-container">
                 {canWrite() && (
                   <>
                     <button
                       className="btn-edit"
                       onClick={() => setEditStatus(status)}
+                      title="Edit"
                     >
-                      Edit
+                      <Edit size={18} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteStatus(status._id)}
+                      title="Delete"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
                   </>
                 )}

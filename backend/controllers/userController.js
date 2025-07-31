@@ -36,12 +36,12 @@ exports.getUserById = async (req, res) => {
 // Create a new user
 exports.createUser = async (req, res) => {
   try {
-    const { username, password, permission } = req.body;
+    const { username, fullName, password, permission } = req.body;
 
     // Validate required fields
-    if (!username || !password) {
+    if (!username || !fullName || !password) {
       return res.status(400).json({
-        message: "Username and password are required",
+        message: "Username, full name, and password are required",
       });
     }
 
@@ -56,6 +56,7 @@ exports.createUser = async (req, res) => {
     // Create new user
     const userData = {
       username: username.trim(),
+      fullName: fullName.trim(),
       password,
       permission: permission || "read-only",
     };
@@ -67,6 +68,7 @@ exports.createUser = async (req, res) => {
     const userResponse = {
       _id: savedUser._id,
       username: savedUser.username,
+      fullName: savedUser.fullName,
       permission: savedUser.permission,
       createdAt: savedUser.createdAt,
       updatedAt: savedUser.updatedAt,
@@ -100,7 +102,7 @@ exports.createUser = async (req, res) => {
 // Update a user
 exports.updateUser = async (req, res) => {
   try {
-    const { username, permission, password } = req.body;
+    const { username, fullName, permission, password } = req.body;
     const userId = req.params.id;
 
     const user = await User.findById(userId);
@@ -111,6 +113,10 @@ exports.updateUser = async (req, res) => {
     // Update fields
     if (username && username.trim() !== "") {
       user.username = username.trim();
+    }
+
+    if (fullName && fullName.trim() !== "") {
+      user.fullName = fullName.trim();
     }
 
     if (permission) {
@@ -127,6 +133,7 @@ exports.updateUser = async (req, res) => {
     const userResponse = {
       _id: updatedUser._id,
       username: updatedUser.username,
+      fullName: updatedUser.fullName,
       permission: updatedUser.permission,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
@@ -216,6 +223,7 @@ exports.authenticateUser = async (req, res) => {
     const userResponse = {
       _id: user._id,
       username: user.username,
+      fullName: user.fullName,
       permission: user.permission,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

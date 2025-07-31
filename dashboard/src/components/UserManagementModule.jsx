@@ -1,12 +1,17 @@
+// Capitalize first letter of each word, safely handle undefined/null
+function capitalizeWords(str) {
+  if (!str) return "";
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
+}
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const UserManagementModule = () => {
   const [users, setUsers] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showPasswords, setShowPasswords] = useState({});
   const [formData, setFormData] = useState({
     username: "",
+    fullName: "",
     password: "",
     confirmPassword: "",
     permission: "read-only",
@@ -37,6 +42,12 @@ const UserManagementModule = () => {
       newErrors.username = "Username is required";
     } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
+    }
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    } else if (formData.fullName.length < 2) {
+      newErrors.fullName = "Full name must be at least 2 characters";
     }
 
     if (!formData.password) {
@@ -80,8 +91,10 @@ const UserManagementModule = () => {
 
     try {
       setLoading(true);
+
       const userData = {
         username: formData.username,
+        fullName: capitalizeWords(formData.fullName),
         password: formData.password,
         permission: formData.permission,
       };
@@ -91,6 +104,7 @@ const UserManagementModule = () => {
       // Reset form and close modal
       setFormData({
         username: "",
+        fullName: "",
         password: "",
         confirmPassword: "",
         permission: "read-only",
@@ -110,13 +124,6 @@ const UserManagementModule = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = (userId) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [userId]: !prev[userId],
-    }));
   };
 
   const handleDeleteUser = async (userId) => {
@@ -156,7 +163,7 @@ const UserManagementModule = () => {
       <div className="users-table">
         <div className="users-table-header">
           <div>Username</div>
-          <div>Password</div>
+          <div>Full Name</div>
           <div>Permission</div>
           <div>Actions</div>
         </div>
@@ -169,43 +176,8 @@ const UserManagementModule = () => {
           users.map((user) => (
             <div key={user._id} className="users-table-row">
               <div className="username-cell">{user.username}</div>
-              <div className="password-cell">
-                <div className="password-container">
-                  <span className="password-text">
-                    {showPasswords[user._id] ? user.password : "••••••••"}
-                  </span>
-                  <button
-                    className="eye-btn"
-                    onClick={() => togglePasswordVisibility(user._id)}
-                    type="button"
-                  >
-                    {showPasswords[user._id] ? (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
+              <div className="fullname-cell">
+                {capitalizeWords(user.fullName)}
               </div>
               <div className="permission-cell">
                 <span className={`permission-badge ${user.permission}`}>
@@ -255,6 +227,22 @@ const UserManagementModule = () => {
                 />
                 {errors.username && (
                   <span className="error-text">{errors.username}</span>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="fullName">Full Name</label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleInputChange}
+                  placeholder="Enter full name"
+                  className={errors.fullName ? "error" : ""}
+                />
+                {errors.fullName && (
+                  <span className="error-text">{errors.fullName}</span>
                 )}
               </div>
 
@@ -318,6 +306,7 @@ const UserManagementModule = () => {
                     setShowAddForm(false);
                     setFormData({
                       username: "",
+                      fullName: "",
                       password: "",
                       confirmPassword: "",
                       permission: "read-only",

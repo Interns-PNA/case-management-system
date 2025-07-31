@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar"; // ✅ Importing reusable SearchBar
+import { Edit, Trash2 } from "lucide-react";
 import AddJudgeModal from "./AddJudgeModal";
 import EditJudgeModal from "./EditJudgeModal";
-import SearchBar from "./SearchBar"; // ✅ Importing reusable SearchBar
 
 const JudgesList = () => {
   const { canWrite } = useAuth();
@@ -116,20 +117,22 @@ const JudgesList = () => {
               <span>{judge.name}</span>
               <span>{judge.court?.name || "-"}</span>
               <span>{judge.location?.name || "-"}</span>
-              <span>
+              <span className="actions-container">
                 {canWrite() && (
                   <>
                     <button
                       className="btn-edit"
                       onClick={() => setEditJudge(judge)}
+                      title="Edit"
                     >
-                      Edit
+                      <Edit size={18} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteJudge(judge._id)}
+                      title="Delete"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
                   </>
                 )}

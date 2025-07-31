@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar";
+import { Edit, Trash2 } from "lucide-react";
 import AddBenchesModal from "./AddBenchesModal";
 import EditBenchesModal from "./EditBenchesModal";
-import SearchBar from "./SearchBar";
 
 const BenchesList = () => {
   const { canWrite } = useAuth();
@@ -127,20 +128,22 @@ const BenchesList = () => {
                   )}
                 </ul>
               </span>
-              <span>
+              <span className="actions-container">
                 {canWrite() && (
                   <>
                     <button
                       className="btn-edit"
                       onClick={() => setEditBench(bench)}
+                      title="Edit"
                     >
-                      Edit
+                      <Edit size={18} />
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteBench(bench._id)}
+                      title="Delete"
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </button>
                   </>
                 )}

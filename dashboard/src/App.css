@@ -550,6 +550,17 @@ body {
   gap: 10px;
 }
 
+/* Ensure bullet points are visible in courts table */
+.courts-table ul {
+  list-style: disc;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.courts-table li {
+  margin: 2px 0;
+}
+
 .courts-table-header,
 .courts-table-row {
   display: grid;
@@ -567,22 +578,51 @@ body {
   color: #fff;
 }
 .btn-edit {
-  background-color: #ffc107;
-  color: #000;
-  padding: 5px 10px;
+  background-color: #4285f4;
+  color: #ffffff;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(66, 133, 244, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-edit:hover {
+  background-color: #3367d6;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
 }
 .btn-delete {
   background-color: #dc3545;
   color: white;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-left: 8px;
   cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  transform: translateY(-1px);
 }
 
 .judges-table {
@@ -616,23 +656,52 @@ body {
 
 /* Use existing global buttons */
 .judges-table-row .btn-edit {
-  background-color: #ffc107;
-  color: #000;
-  padding: 5px 10px;
+  background-color: #4285f4;
+  color: #ffffff;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(66, 133, 244, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.judges-table-row .btn-edit:hover {
+  background-color: #3367d6;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
 }
 
 .judges-table-row .btn-delete {
   background-color: #dc3545;
   color: white;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-left: 8px;
   cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.judges-table-row .btn-delete:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  transform: translateY(-1px);
 }
 
 .subject-table {
@@ -663,8 +732,52 @@ body {
 .subject-table-row .btn-edit,
 .subject-table-row .btn-delete {
   margin-right: 8px;
-  padding: 5px 10px;
+  padding: 8px 12px;
   font-size: 14px;
+}
+
+.subject-table-row .btn-edit {
+  background-color: #4285f4;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(66, 133, 244, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subject-table-row .btn-edit:hover {
+  background-color: #3367d6;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
+}
+
+.subject-table-row .btn-delete {
+  background-color: #dc3545;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subject-table-row .btn-delete:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  transform: translateY(-1px);
 }
 .search-bar {
   margin-right: 10px;
@@ -709,23 +822,52 @@ body {
 
 /* Reuse existing global styles for buttons */
 .departments-table-row .btn-edit {
-  background-color: #ffc107;
-  color: #000;
-  padding: 5px 10px;
+  background-color: #4285f4;
+  color: #ffffff;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(66, 133, 244, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.departments-table-row .btn-edit:hover {
+  background-color: #3367d6;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
 }
 
 .departments-table-row .btn-delete {
   background-color: #dc3545;
   color: white;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-left: 8px;
   cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.departments-table-row .btn-delete:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  transform: translateY(-1px);
 }
 /* === Designations Table Layout === */
 .designations-table {
@@ -759,23 +901,52 @@ body {
 
 /* Button styling consistent with other sections */
 .designations-table-row .btn-edit {
-  background-color: #ffc107;
-  color: #000;
-  padding: 5px 10px;
+  background-color: #4285f4;
+  color: #ffffff;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(66, 133, 244, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.designations-table-row .btn-edit:hover {
+  background-color: #3367d6;
+  box-shadow: 0 2px 6px rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
 }
 
 .designations-table-row .btn-delete {
   background-color: #dc3545;
   color: white;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-left: 8px;
   cursor: pointer;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.designations-table-row .btn-delete:hover {
+  background-color: #c82333;
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
+  transform: translateY(-1px);
 }
 
 @theme inline {
@@ -947,7 +1118,7 @@ body {
 
 .users-table-header {
   display: grid;
-  grid-template-columns: 1fr 1fr 150px 100px;
+  grid-template-columns: 1fr 1.5fr 1fr 150px 100px;
   padding: 15px 20px;
   background: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
@@ -958,7 +1129,7 @@ body {
 
 .users-table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 150px 100px;
+  grid-template-columns: 1fr 1.5fr 1fr 150px 100px;
   padding: 15px 20px;
   border-bottom: 1px solid #e9ecef;
   align-items: center;
@@ -974,6 +1145,11 @@ body {
 }
 
 .username-cell {
+  font-weight: 500;
+  color: #333;
+}
+
+.fullname-cell {
   font-weight: 500;
   color: #333;
 }
@@ -1135,4 +1311,90 @@ body {
   margin: 0 0 10px 10px;
   letter-spacing: 0.5px;
   text-align: left;
+}
+
+/* Action buttons container for proper alignment */
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+/* Ensure consistent button sizing and horizontal layout */
+.btn-edit,
+.btn-delete {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Ensure icons are perfectly centered and consistent */
+  padding: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+/* View button styling to match edit and delete buttons */
+.btn-view {
+  background-color: #3498db;
+  color: #ffffff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: "Roboto, Arial, sans-serif";
+  letter-spacing: 0.25px;
+  box-shadow: 0 1px 3px rgba(52, 152, 219, 0.3);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  justify-content: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.btn-view:hover {
+  background-color: #2980b9;
+  box-shadow: 0 2px 6px rgba(52, 152, 219, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Ensure all icons within buttons have consistent styling */
+.btn-edit svg,
+.btn-delete svg,
+.btn-view svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Force horizontal layout for action buttons */
+.courts-table-row span:last-child,
+.judges-table-row span:last-child,
+.departments-table-row span:last-child,
+.designations-table-row span:last-child,
+.subject-table-row span:last-child {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+/* Ensure buttons don't wrap to new lines */
+.btn-edit,
+.btn-delete {
+  flex-shrink: 0;
+  white-space: nowrap;
 }

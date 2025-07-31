@@ -1,10 +1,11 @@
 // components/DepartmentsList.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar";
+import { Edit, Trash2 } from "lucide-react";
 import AddDepartmentModal from "./AddDepartmentModal";
 import EditDepartmentModal from "./EditDepartmentModal";
-import SearchBar from "./SearchBar"; // ✅ Reuse search bar
-import { useAuth } from "../contexts/AuthContext";
 
 const DepartmentsList = () => {
   const { canWrite } = useAuth();
@@ -106,20 +107,22 @@ const DepartmentsList = () => {
             <span>{dept.name}</span>
             <span>{dept.details || "–"}</span>
             <span>{dept.cases || 0}</span>
-            <span className="actions">
+            <span className="actions-container">
               {canWrite() && (
                 <>
                   <button
                     className="btn-edit"
                     onClick={() => setEditDept(dept)}
+                    title="Edit"
                   >
-                    Edit
+                    <Edit size={18} />
                   </button>
                   <button
                     className="btn-delete"
                     onClick={() => handleDeleteDepartment(dept._id)}
+                    title="Delete"
                   >
-                    Delete
+                    <Trash2 size={18} />
                   </button>
                 </>
               )}
