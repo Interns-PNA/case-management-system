@@ -7,7 +7,6 @@ import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import "../auth.css";
 import naLogo from "../assets/na.png";
-import { toast, Toaster } from "sonner";
 
 export default function LoginForm(props) {
   const navigate = useNavigate();
@@ -56,24 +55,6 @@ export default function LoginForm(props) {
       }
       login(response.data.user, rememberMe);
 
-      // Show Sonner toast on top
-      toast.success("Login successful!", {
-        position: "top-center",
-        style: {
-          fontSize: "1.15rem",
-          fontWeight: 700,
-          background: "#1e293b",
-          color: "#fff",
-          boxShadow: "0 4px 24px rgba(30,41,59,0.18)",
-          borderRadius: "10px",
-          padding: "18px 32px",
-        },
-        iconTheme: {
-          primary: "#2563eb",
-          secondary: "#fff",
-        },
-      });
-
       // Delay navigation so toast is visible
       setTimeout(() => {
         navigate("/dashboard");
@@ -92,7 +73,6 @@ export default function LoginForm(props) {
 
   return (
     <>
-      <Toaster position="top-center" richColors />
       <div className="auth-page">
         <div className="auth-card">
           <div className="auth-right">

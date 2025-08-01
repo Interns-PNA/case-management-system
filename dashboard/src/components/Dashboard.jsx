@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import NA_Logo from "../assets/National_Assembly_of_Pakistan_-_Logo.png";
@@ -145,7 +146,7 @@ const Dashboard = () => {
       icon: <FaCheckCircle size={28} />,
     },
     {
-      label: "In Progress",
+      label: "Report in Progress",
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
@@ -280,10 +281,9 @@ const Dashboard = () => {
 
             if (card.link) {
               let linkUrl = card.link;
+              // Always use ?status= for filtering by status, robust for future
               if (card.status) {
                 linkUrl += `?status=${encodeURIComponent(card.status)}`;
-              } else if (card.search) {
-                linkUrl += `?search=${encodeURIComponent(card.search)}`;
               } else if (card.filter === "upcoming") {
                 // Get today's date in YYYY-MM-DD format
                 const today = new Date();
