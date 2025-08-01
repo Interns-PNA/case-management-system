@@ -134,7 +134,7 @@ const Dashboard = () => {
       value: counts.pending,
       color: "blue-2",
       link: "/cases",
-      search: "Pending",
+      status: "Pending",
       icon: <FaHourglassHalf size={28} />,
     },
     {
@@ -142,15 +142,15 @@ const Dashboard = () => {
       value: counts.closed,
       color: "blue-3",
       link: "/cases",
-      search: "Closed",
+      status: "Closed",
       icon: <FaCheckCircle size={28} />,
     },
     {
-      label: "In Progress",
+      label: "Report in Progress",
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
-      search: "In Progress",
+      status: "In Progress",
       icon: <FaSpinner size={28} />,
     },
     {
@@ -281,10 +281,9 @@ const Dashboard = () => {
 
             if (card.link) {
               let linkUrl = card.link;
+              // Always use ?status= for filtering by status, robust for future
               if (card.status) {
                 linkUrl += `?status=${encodeURIComponent(card.status)}`;
-              } else if (card.search) {
-                linkUrl += `?search=${encodeURIComponent(card.search)}`;
               } else if (card.filter === "upcoming") {
                 // Get today's date in YYYY-MM-DD format
                 const today = new Date();
