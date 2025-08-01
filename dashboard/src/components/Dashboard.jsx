@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import NA_Logo from "../assets/National_Assembly_of_Pakistan_-_Logo.png";
@@ -133,7 +134,7 @@ const Dashboard = () => {
       value: counts.pending,
       color: "blue-2",
       link: "/cases",
-      status: "Pending",
+      search: "Pending",
       icon: <FaHourglassHalf size={28} />,
     },
     {
@@ -141,7 +142,7 @@ const Dashboard = () => {
       value: counts.closed,
       color: "blue-3",
       link: "/cases",
-      status: "Closed",
+      search: "Closed",
       icon: <FaCheckCircle size={28} />,
     },
     {
@@ -149,7 +150,7 @@ const Dashboard = () => {
       value: counts.inProgress,
       color: "blue-4",
       link: "/cases",
-      status: "In Progress",
+      search: "In Progress",
       icon: <FaSpinner size={28} />,
     },
     {
