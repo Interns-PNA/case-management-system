@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import SearchBar from "./SearchBar";
-import { Edit, Trash2, FileText } from "lucide-react";
+import { Edit, Trash2, Eye } from "lucide-react";
 import CaseForm from "./CaseForm";
 import { Link, useLocation } from "react-router-dom";
 
@@ -319,9 +319,20 @@ const CasesList = () => {
                 ? new Date(c.nextHearingDate).toLocaleDateString()
                 : "–"}
             </span>
-            <span className="actions-container">
+            <span style={{ display: "flex", gap: 8 }}>
               <button
                 className="btn-view"
+                style={{
+                  background: "#3498db",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  padding: "6px 12px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
                 onClick={async () => {
                   try {
                     const res = await axios.get(
@@ -334,7 +345,7 @@ const CasesList = () => {
                 }}
                 title="View"
               >
-                <FileText size={18} />
+                <Eye size={18} />
               </button>
               {canWrite() && (
                 <>

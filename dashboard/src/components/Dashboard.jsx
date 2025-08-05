@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import NA_Logo from "../assets/National_Assembly_of_Pakistan_-_Logo.png";
+import NA_Logo from "../assets/na.png";
 import "../App.css";
 import {
   FaFolderOpen,

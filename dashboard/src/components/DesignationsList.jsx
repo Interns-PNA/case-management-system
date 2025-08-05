@@ -4,7 +4,6 @@ import AddDesignationModal from "./AddDesignationModal";
 import EditDesignationModal from "./EditDesignationModal";
 import SearchBar from "./SearchBar"; // ✅ Reusable search bar
 import { useAuth } from "../contexts/AuthContext";
-import { Edit, Trash2 } from "lucide-react";
 
 const DesignationsList = () => {
   const { canWrite } = useAuth();
@@ -118,22 +117,20 @@ const DesignationsList = () => {
               <span>{designation.name}</span>
               <span>{designation.details || "–"}</span>
               <span>{designation.department?.name || "–"}</span>
-              <span className="actions-container">
+              <span>
                 {canWrite() && (
                   <>
                     <button
                       className="btn-edit"
                       onClick={() => setEditDesignation(designation)}
-                      title="Edit"
                     >
-                      <Edit size={18} />
+                      Edit
                     </button>
                     <button
                       className="btn-delete"
                       onClick={() => handleDeleteDesignation(designation._id)}
-                      title="Delete"
                     >
-                      <Trash2 size={18} />
+                      Delete
                     </button>
                   </>
                 )}
