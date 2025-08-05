@@ -139,6 +139,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   const [subjects, setSubjects] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [benches, setBenches] = useState([]);
+  const [statuses, setStatuses] = useState([]);
   // State for dynamic case remarks
   const [caseRemarks, setCaseRemarks] = useState([]);
   // State for selected judges (multiple selection)
@@ -283,16 +284,18 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
   const fetchDropdownData = async () => {
     try {
-      const [courtRes, locationRes, judgeRes, subjectRes] = await Promise.all([
+      const [courtRes, locationRes, judgeRes, subjectRes, statusRes] = await Promise.all([
         axios.get("http://localhost:5000/api/courts"),
         axios.get("http://localhost:5000/api/locations"),
         axios.get("http://localhost:5000/api/judges"),
         axios.get("http://localhost:5000/api/subject-matter"),
+        axios.get("http://localhost:5000/api/statuses"),
       ]);
       setCourts(courtRes.data);
       setLocations(locationRes.data);
       setJudges(judgeRes.data);
       setSubjects(subjectRes.data);
+      setStatuses(statusRes.data);
     } catch (error) {
       console.error("Dropdown fetch failed:", error);
     }
@@ -514,9 +517,9 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 required
               >
                 <option value="">Status *</option>
-                <option value="Pending">Pending</option>
-                <option value="Closed">Closed</option>
-                <option value="In Progress">In Progress</option>
+                {statuses.map((s) => (
+                  <option key={s._id} value={s.name}>{s.name}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -557,13 +560,13 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="bench">Bench *</label>
+              <label htmlFor="bench">Bench </label>
               <select
                 id="bench"
                 name="bench"
                 value={data.bench}
                 onChange={handleChange}
-                required
+                
               >
                 <option value="">Select Bench</option>
                 {benches.map((b) => (
@@ -577,7 +580,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
           <div className="form-row">
             <div className="form-group" style={{ flex: "2" }}>
-              <label htmlFor="judges">Judge(s) *</label>
+              <label htmlFor="judges">Judge(s)</label>
               <div className="judge-dropdown-container">
                 <div className="judge-selector" onClick={toggleJudgeDropdown}>
                   <span
@@ -652,7 +655,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="totalJudges">Total Judges *</label>
+              <label htmlFor="totalJudges">Total Judges</label>
               <input
                 type="text"
                 id="totalJudges"
@@ -660,7 +663,6 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
                 placeholder="Total Judges"
                 value={data.totalJudges}
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
