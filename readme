@@ -1,0 +1,4 @@
+To run the project, follow below steps
+1. goto directory dashboard and run the command `npm run dev`
+2. goto directory backend and run the command `node server.js`
+3. goto your favorite browser (note: browser must be your favorite) and goto the the url `http://localhost:5173/`
