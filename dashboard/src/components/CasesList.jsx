@@ -288,7 +288,7 @@ const CasesList = () => {
           <span>Case No</span>
           <span>Title</span>
           <span>Status</span>
-          <span>Department</span>
+          <span>Court</span>
           <span>Subject Matter</span>
           <span>Next Hearing</span>
           <span>Actions</span>
@@ -308,7 +308,11 @@ const CasesList = () => {
             <span>{c.caseNo}</span>
             <span>{c.caseTitle}</span>
             <span>{getStatusName(c.status)}</span>
-            <span>{c.ministry}</span>
+            <span>
+              {c.court && typeof c.court === "object"
+                ? c.court.name || c.court._id || "–"
+                : c.court || "–"}
+            </span>
             <span>
               {c.subjectMatter && typeof c.subjectMatter === "object"
                 ? c.subjectMatter.name || c.subjectMatter._id || "–"

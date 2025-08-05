@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const EditCourtModal = ({ court, onClose, onUpdate }) => {
-  const [name, setName] = useState(court.name || '');
+  const [name, setName] = useState(court.name || "");
   const [locations, setLocations] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState(
-    court.locations?.map(loc => (typeof loc === 'object' ? loc._id : loc)) || []
+    court.locations?.map((loc) => (typeof loc === "object" ? loc._id : loc)) ||
+      []
   );
 
   useEffect(() => {
@@ -14,10 +15,10 @@ const EditCourtModal = ({ court, onClose, onUpdate }) => {
 
   const fetchLocations = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/locations');
+      const res = await axios.get("http://localhost:5000/api/locations");
       setLocations(res.data);
     } catch (err) {
-      console.error('Error fetching locations:', err);
+      console.error("Error fetching locations:", err);
     }
   };
 
@@ -47,7 +48,7 @@ const EditCourtModal = ({ court, onClose, onUpdate }) => {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h3>Edit Court</h3>
+        <h3 className="font-bold">Edit Court</h3>
 
         <input
           type="text"
@@ -56,26 +57,41 @@ const EditCourtModal = ({ court, onClose, onUpdate }) => {
           onChange={(e) => setName(e.target.value)}
         />
 
-        <div style={{ marginBottom: '10px' }}>
+        <div style={{ marginBottom: "10px" }}>
           <strong>Select Locations:</strong>
-          <div style={{ maxHeight: '120px', overflowY: 'auto', marginTop: '5px' }}>
+          <div
+            style={{ maxHeight: "120px", overflowY: "auto", marginTop: "5px" }}
+          >
             {locations.map((loc) => (
-              <label key={loc._id} className="location-checkbox-row">
-  <input
-    type="checkbox"
-    value={loc._id}
-    checked={selectedLocations.includes(loc._id)}
-    onChange={() => handleCheckboxChange(loc._id)}
-  />
-  <span>{loc.name}</span>
-</label>
+              <div
+                key={loc._id}
+                className="location-checkbox-row"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "2px 0",
+                }}
+              >
+                <span style={{ flex: 1 }}>{loc.name}</span>
+                <input
+                  type="checkbox"
+                  value={loc._id}
+                  checked={selectedLocations.includes(loc._id)}
+                  onChange={() => handleCheckboxChange(loc._id)}
+                  style={{ marginLeft: 12 }}
+                />
+              </div>
             ))}
           </div>
         </div>
 
         <div className="modal-actions">
-          <button onClick={handleSubmit} className="btn-submit">Update</button>
-          <button onClick={onClose} className="btn-cancel">Cancel</button>
+          <button onClick={handleSubmit} className="btn-submit">
+            Update
+          </button>
+          <button onClick={onClose} className="btn-cancel">
+            Cancel
+          </button>
         </div>
       </div>
     </div>
