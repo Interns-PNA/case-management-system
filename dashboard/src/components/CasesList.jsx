@@ -94,18 +94,37 @@ const CasesList = () => {
       setFilteredCases(cases); // If search is cleared, show all fetched cases
       return;
     }
-    const filtered = cases.filter(
-      (c) =>
-        c.caseNo.toLowerCase().includes(term.toLowerCase()) ||
-        (c.caseTitle &&
-          c.caseTitle.toLowerCase().includes(term.toLowerCase())) ||
-        (getStatusName(c.status) &&
-          getStatusName(c.status).toLowerCase().includes(term.toLowerCase())) ||
-        (c.ministry && c.ministry.toLowerCase().includes(term.toLowerCase())) ||
-        (c.subjectMatter &&
-          typeof c.subjectMatter === "string" &&
-          c.subjectMatter.toLowerCase().includes(term.toLowerCase()))
-    );
+    const lowerTerm = term.toLowerCase();
+    const filtered = cases.filter((c) => {
+      // Court filter: support both object and string
+      let courtMatch = false;
+      if (c.court) {
+        if (typeof c.court === "object" && c.court.name) {
+          courtMatch = c.court.name.toLowerCase().includes(lowerTerm);
+        } else if (typeof c.court === "string") {
+          courtMatch = c.court.toLowerCase().includes(lowerTerm);
+        }
+      }
+
+      // Subject Matter filter: support both object and string
+      let subjectMatterMatch = false;
+      if (c.subjectMatter) {
+        if (typeof c.subjectMatter === "object" && c.subjectMatter.name) {
+          subjectMatterMatch = c.subjectMatter.name.toLowerCase().includes(lowerTerm);
+        } else if (typeof c.subjectMatter === "string") {
+          subjectMatterMatch = c.subjectMatter.toLowerCase().includes(lowerTerm);
+        }
+      }
+
+      return (
+        (c.caseNo && c.caseNo.toLowerCase().includes(lowerTerm)) ||
+        (c.caseTitle && c.caseTitle.toLowerCase().includes(lowerTerm)) ||
+        (getStatusName(c.status) && getStatusName(c.status).toLowerCase().includes(lowerTerm)) ||
+        (c.ministry && c.ministry.toLowerCase().includes(lowerTerm)) ||
+        subjectMatterMatch ||
+        courtMatch
+      );
+    });
     setFilteredCases(filtered);
   };
 
@@ -278,11 +297,11 @@ const CasesList = () => {
       <div className="departments-table">
         <div
           className="departments-table-header"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "50px 1.5fr 2fr 1.2fr 1.5fr 2fr 1.2fr 160px",
-            alignItems: "center",
-          }}
+        style={{
+          display: "grid",
+           gridTemplateColumns: "50px 1.5fr 2.0fr 1.2fr 2.2fr 2fr 1.2fr 160px", // Increased court column width
+          alignItems: "center",
+        }}
         >
           <span>S.No</span>
           <span>Case No</span>
@@ -300,7 +319,7 @@ const CasesList = () => {
             key={c._id}
             style={{
               display: "grid",
-              gridTemplateColumns: "50px 1.5fr 2fr 1.2fr 1.5fr 2fr 1.2fr 160px",
+              gridTemplateColumns: "50px 1.5fr 2fr 1.2fr 2.2fr 2fr 1.2fr 160px", // Increased court column width
               alignItems: "center",
             }}
           >
