@@ -1,0 +1,59 @@
+# Project-wide .gitignore for Case Management System
+
+# Node
+node_modules/
+**/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+dist-ssr/
+.vite/
+.vitepress/
+
+# Frontend (Vite)
+/frontend/dist/
+/frontend/.output/
+
+# Backend uploads and temp files
+/backend/uploads/
+/uploads/
+
+# Environment files
+.env
+.env.*
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Coverage and test output
+coverage/
+coverage/**
+
+# Package distribution
+*.tgz
+
+# Misc
+*.local
+
+# Ignore Markdown docs except README.md files (keeps project READMEs tracked)
+*.md
+!**/README.md

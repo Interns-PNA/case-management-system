@@ -67,13 +67,46 @@ exports.getCases = async (req, res) => {
 
     // Filter by date range if provided
     if (req.query.startDate || req.query.endDate) {
+      const isDateOnly = (s) =>
+        typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+      const toLocalDate = (s, endOfDay = false) => {
+        if (!s) return null;
+        if (isDateOnly(s)) {
+          const [y, m, d] = s.split("-").map(Number);
+          if (endOfDay) return new Date(y, m - 1, d, 23, 59, 59, 999);
+          return new Date(y, m - 1, d, 0, 0, 0, 0);
+        }
+        const dt = new Date(s);
+        return isNaN(dt) ? null : dt;
+      };
+
+      const startRaw = req.query.startDate;
+      const endRaw = req.query.endDate;
+
+      let start = toLocalDate(startRaw, false);
+      let end = toLocalDate(endRaw, !!endRaw && isDateOnly(endRaw));
+
+      // If both provided and date-only and same day, ensure end is end-of-day
+      if (
+        startRaw &&
+        endRaw &&
+        isDateOnly(startRaw) &&
+        isDateOnly(endRaw) &&
+        start &&
+        end
+      ) {
+        const sameDay =
+          start.getFullYear() === end.getFullYear() &&
+          start.getMonth() === end.getMonth() &&
+          start.getDate() === end.getDate();
+        if (sameDay) {
+          end = toLocalDate(endRaw, true);
+        }
+      }
+
       filter.nextHearingDate = {};
-      if (req.query.startDate) {
-        filter.nextHearingDate.$gte = new Date(req.query.startDate);
-      }
-      if (req.query.endDate) {
-        filter.nextHearingDate.$lte = new Date(req.query.endDate);
-      }
+      if (start) filter.nextHearingDate.$gte = start;
+      if (end) filter.nextHearingDate.$lte = end;
     }
 
     const cases = await Case.find(filter).populate(

@@ -1,0 +1,10 @@
+To use the Sonner toast notification, import { toast } from 'sonner';
+
+Example:
+import { toast } from 'sonner';
+
+toast.success('Case submitted successfully!');
+
+toast.error('Failed to submit case.');
+
+The <Toaster /> component (from your ui/sonner.jsx) should be rendered at the root of your app (e.g., in App.jsx or main layout).
