@@ -1,141 +1,151 @@
-# Case Management System
+# Case Management System (MERN)
 
-A full‑stack web application for tracking legal cases end‑to‑end: case metadata, hearings, court/judge mappings, remarks, document uploads, and role-based access for internal staff.
+An intranet-ready MERN application that helps legal/administrative teams track cases end-to-end (metadata, courts/judges, hearings, remarks, and documents) with role-based permissions.
 
-## Overview
-This system helps legal/administrative teams maintain a single source of truth for litigation/case records.
+## Overview (What problem this solves)
+In many organizations, case information is spread across spreadsheets, inbox threads, and personal notes. That makes it hard to answer basic operational questions quickly:
 
-It is designed for organizations that need:
-- Consistent record keeping across many cases
-- A searchable operational view (by status, court, subject matter, hearing dates)
-- Document handling (orders, notices, briefs, evidence)
-- Controlled access (read-only vs read-write)
+- What cases are upcoming this month?
+- Which matters are pending vs in progress vs closed?
+- Who is the focal person / law officer for a matter?
+- Where is the latest order / notice / attachment?
+
+This project centralizes case records into a searchable system with consistent master data (courts, judges, subject matters, etc.), enabling teams to manage hearings and documentation with less manual coordination.
 
 ## Key Features
-- **Case lifecycle management**: create, edit, delete, view; track status, revenue, ministry/department, and key contacts.
-- **Upcoming hearings & calendar indicators**: dashboard highlights dates with hearings for quick navigation.
-- **Master data modules**: courts, locations, judges, benches, departments, designations, statuses, subject matters.
-- **File uploads & downloads**: attach a primary case file and optional per-remark attachments; served via `/uploads` and downloadable via an API endpoint.
-- **Fast filtering**: backend supports filtering cases by `status` and by `startDate`/`endDate` (date-only supported).
-- **User management + permissions**: create/update/delete users with `read-only` or `read-write` permissions.
-- **Dashboard summary counts**: counts of cases by status plus totals for master-data entities.
+- Case CRUD with rich metadata (status, court/location, subject matter, contacts, revenue, tasks)
+- Dashboard summary counts + hearing-date calendar highlights
+- Filtering by `status` and next-hearing date ranges
+- Master data modules: courts, locations, benches, judges, departments, designations, statuses, subject matters
+- Document handling: upload a main case file + per-remark attachments; download/open stored files
+- User management with permissions (`read-only` vs `read-write`)
 
 ## Tech Stack
-Frontend:
+**Frontend**
 - React (Vite)
 - React Router
-- Tailwind CSS + shadcn/ui-style components (Radix primitives)
-- Axios
+- Tailwind CSS + Radix primitives (shadcn/ui-style components)
+- Axios (API calls)
 - Sonner (toast notifications)
 
-Backend:
-- Node.js + Express
-- MongoDB via Mongoose
-- Multer for uploads
-- bcryptjs for password hashing
+**Backend**
+- Node.js
+- Express
+- MongoDB + Mongoose
+- Multer (multipart uploads)
+- bcryptjs (password hashing)
 
-Database:
+**Database**
 - MongoDB
 
-Deployment:
-- Intended to run on a **virtual machine** or **local network** inside the organization (intranet deployment).
+**Deployment**
+- Designed for organizational deployment on a **virtual machine** or **local network** (intranet)
+- Typical setup: reverse proxy (IIS/Nginx) → static frontend build + Node/Express API → MongoDB
 
-## System Architecture
-High-level flow:
-1. **User logs in** from the React frontend.
-2. Frontend calls the **Express API** (default: `http://localhost:5000`).
-3. Express reads/writes data in **MongoDB** through Mongoose models.
-4. Uploaded files are stored on disk in `backend/uploads/`.
-5. Files are served directly via `GET /uploads/<filename>` and can be downloaded via `GET /api/cases/download/<filename>`.
+## Architecture (High-level flow)
+1. A user authenticates in the React UI.
+2. The frontend calls the Express REST API (default: `http://localhost:5000`).
+3. The API performs CRUD and aggregation queries via Mongoose models.
+4. Uploaded documents are stored on disk in `backend/uploads/`.
+5. Files are served at `GET /uploads/<filename>` and can be downloaded via `GET /api/cases/download/<filename>`.
 
-Suggested deployment topology (intranet):
-- Browser → Reverse proxy (Nginx/IIS) →
-  - Frontend (static Vite build)
-  - Backend API (Node/Express)
-- Backend → MongoDB
-- Backend → Local disk for uploads
+## Repo Structure
+```text
+Case Management System/
+  backend/
+    config/
+    controllers/
+    middleware/
+    models/
+    routes/
+    scripts/
+    uploads/
+    server.js
+    package.json
+  frontend/
+    src/
+    public/
+    vite.config.js
+    package.json
+  README.md
+  .gitignore
+  package.json
+```
 
 ## My Role
-Solo implementation (end-to-end):
-- Designed MongoDB schemas and relationships (cases, courts, judges, subject matters, etc.).
-- Built the Express REST API (CRUD + filtering + file handling).
-- Built the React UI (dashboard, lists, forms, modals, protected routes).
-- Implemented authentication UX and permission-based UI gating.
-- Added a database seeding script for demo/dev datasets.
+I built this project end-to-end as a solo developer:
+
+- Designed MongoDB schemas and entity relationships (cases, courts, judges, subject matters, etc.).
+- Implemented REST APIs (CRUD, filtering, counts summary) and file upload/download handling.
+- Built the React UI (dashboard, lists, forms, modals, navigation, protected routes).
+- Implemented permission-aware UX (read-only vs read-write actions).
+- Added a seeding script for generating realistic demo/dev data.
 
 ## Screenshots / Demo
-Add screenshots here later:
-- Dashboard
-- Cases list + filters
-- Case details + file attachments
-- Master data modules
-- User management
+_(Placeholders — add images later)_
+
+- Dashboard: `./screenshots/dashboard.png`
+- Cases list: `./screenshots/cases-list.png`
+- Case form + attachments: `./screenshots/case-form.png`
+- User management: `./screenshots/users.png`
 
 ## How to Run Locally
+
 ### Prerequisites
-- Node.js 18+ recommended
-- MongoDB (local instance or a reachable server)
+- Node.js (18+ recommended)
+- MongoDB running locally or reachable over the network
 
-### 1) Backend setup
-From the project root:
-
+### 1) Backend (API)
 ```bash
 cd backend
 npm install
 ```
 
 Create `backend/.env`:
-
 ```env
 MongoURI=mongodb://127.0.0.1:27017/case_management
 PORT=5000
 ```
 
-Run the API:
-
+Run the backend:
 ```bash
 npm run dev
 ```
 
-Backend will start on `http://localhost:5000`.
+API will be available at `http://localhost:5000`.
 
-#### Default admin behavior (important)
-On server startup, the backend ensures an `admin` user exists and **resets the admin credentials**:
-- Username: `admin`
-- Password: `admin1`
-- Permission: `read-write`
-
-### 2) (Optional) Seed development data
-The repo includes a destructive seed script (it purges collections before inserting demo data).
+### 2) (Optional) Seed demo data
+This seed command **purges data** in the seeded collections and inserts a fresh demo dataset.
 
 ```bash
 cd backend
 npm run seed
 ```
 
-Note: the seed script inserts `admin / Admin@123`, but **starting the server will reset admin to `admin / admin1`**.
-
-### 3) Frontend setup
-In a separate terminal:
-
+### 3) Frontend (UI)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend will start on `http://localhost:5173`.
+Frontend runs at `http://localhost:5173`.
 
-### 4) Log in
-Use:
+### 4) Default admin credentials
+Default admin login:
+
 - Username: `admin`
 - Password: `admin1`
 
+Important security note:
+- The backend currently enforces/resets the `admin` account on server startup.
+- For any real deployment, change the default credentials and remove the auto-reset behavior.
+
 ## Future Improvements
-- **Configurable API base URL**: remove hardcoded `http://localhost:5000` in the frontend; use `.env` (`VITE_API_BASE_URL`) and an Axios client wrapper.
-- **Stronger authentication**: issue signed tokens (JWT) or server sessions; protect sensitive routes and add password policies.
-- **Audit logging**: record who changed what and when (case edits, deletions, user changes).
-- **Pagination + server-side search**: improve performance for large datasets.
-- **Validation and error handling**: consistent request validation (e.g., Zod/Joi) and standardized API errors.
-- **Automated tests**: API tests (supertest) and frontend component tests.
-- **Deployment hardening**: CORS allowlist, rate limits, backups, upload retention policies, and secrets management.
+- Replace hardcoded API URLs with `VITE_API_BASE_URL` + a centralized Axios client
+- Implement secure authentication (JWT or sessions), password policy, and account lockout
+- Add audit trail (who changed what, when) and exportable activity logs
+- Add pagination + server-side searching for large datasets
+- Standardize validation and error responses (e.g., Zod/Joi + consistent API error shape)
+- Add tests (API: supertest; UI: component tests) and a CI pipeline
+- Deployment hardening: CORS allowlist, rate limiting, backup/restore strategy, upload retention policies
