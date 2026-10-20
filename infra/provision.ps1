@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)] [string]$AdminInitialPassword,
     [string]$Location = 'southeastasia',
     [string]$ResourceGroup = 'rg-case-project',
-    [string]$EnvironmentName = 'env-mern-project',
+    [string]$EnvironmentName = 'env-case-project',
     [string]$BackendApp = 'cms-backend',
     [string]$FrontendApp = 'cms-frontend',
     [string]$StorageAccount = '',
