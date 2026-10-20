@@ -1,8 +1,9 @@
+import { API_BASE } from "../lib/api";
 import React from "react";
 
 const FileDisplay = ({ files, caseRemarks }) => {
   const downloadFile = (filename) => {
-    const url = `http://localhost:5000/api/cases/download/${filename}`;
+    const url = `${API_BASE}/api/cases/download/${filename}`;
     window.open(url, "_blank");
   };
 

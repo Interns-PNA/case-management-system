@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,7 +12,7 @@ const CourtsList = () => {
   const [courts, setCourts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editCourt, setEditCourt] = useState(null);
-  const [filteredCourts, setFilteredCourts] = useState([]); // ✅ State to store filtered list
+  const [, setFilteredCourts] = useState([]); // ✅ State to store filtered list
   const [searchTerm, setSearchTerm] = useState(""); // ✅ State to store search term
 
   useEffect(() => {
@@ -20,7 +21,7 @@ const CourtsList = () => {
 
   const fetchCourts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/courts");
+      const res = await axios.get(`${API_BASE}/api/courts`);
       setCourts(res.data);
       setFilteredCourts(res.data); // ✅ Initialize filtered list
     } catch (err) {
@@ -30,7 +31,7 @@ const CourtsList = () => {
 
   const handleAddCourt = async (newCourt) => {
     try {
-      await axios.post("http://localhost:5000/api/courts", newCourt);
+      await axios.post(`${API_BASE}/api/courts`, newCourt);
       fetchCourts();
       setShowAddModal(false);
     } catch (err) {
@@ -40,7 +41,7 @@ const CourtsList = () => {
 
   const handleUpdateCourt = async (updatedCourt) => {
     try {
-      await axios.put(`http://localhost:5000/api/courts/${updatedCourt._id}`, {
+      await axios.put(`${API_BASE}/api/courts/${updatedCourt._id}`, {
         name: updatedCourt.name,
         locations: updatedCourt.locations,
       });
@@ -53,7 +54,7 @@ const CourtsList = () => {
 
   const handleDeleteCourt = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/courts/${id}`);
+      await axios.delete(`${API_BASE}/api/courts/${id}`);
       fetchCourts();
     } catch (err) {
       console.error("Error deleting court:", err);

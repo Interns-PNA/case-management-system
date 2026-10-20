@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddDesignationModal from "./AddDesignationModal";
@@ -20,7 +21,7 @@ const DesignationsList = () => {
 
   const fetchDesignations = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/designations");
+      const res = await axios.get(`${API_BASE}/api/designations`);
       setDesignations(res.data);
       setFilteredDesignations(res.data);
     } catch (err) {
@@ -42,7 +43,7 @@ const DesignationsList = () => {
   const handleAddDesignation = async (newDesignation) => {
     try {
       await axios.post(
-        "http://localhost:5000/api/designations",
+        `${API_BASE}/api/designations`,
         newDesignation
       );
       fetchDesignations();
@@ -55,7 +56,7 @@ const DesignationsList = () => {
   const handleUpdateDesignation = async (updatedDesignation) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/designations/${updatedDesignation._id}`,
+        `${API_BASE}/api/designations/${updatedDesignation._id}`,
         updatedDesignation
       );
       fetchDesignations();
@@ -67,7 +68,7 @@ const DesignationsList = () => {
 
   const handleDeleteDesignation = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/designations/${id}`);
+      await axios.delete(`${API_BASE}/api/designations/${id}`);
       fetchDesignations();
     } catch (err) {
       console.error("Error deleting designation:", err);

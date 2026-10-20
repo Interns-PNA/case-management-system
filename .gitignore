@@ -29,6 +29,8 @@ dist-ssr/
 # Environment files
 .env
 .env.*
+!.env.example
+!.env.development
 .env.local
 
 # OS files

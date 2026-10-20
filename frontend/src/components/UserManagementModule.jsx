@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 // Capitalize first letter of each word, safely handle undefined/null
 function capitalizeWords(str) {
   if (!str) return "";
@@ -26,7 +27,7 @@ const UserManagementModule = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/users");
+      const response = await axios.get(`${API_BASE}/api/users`);
       setUsers(response.data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -99,7 +100,7 @@ const UserManagementModule = () => {
         permission: formData.permission,
       };
 
-      await axios.post("http://localhost:5000/api/users", userData);
+      await axios.post(`${API_BASE}/api/users`, userData);
 
       // Reset form and close modal
       setFormData({
@@ -129,7 +130,7 @@ const UserManagementModule = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/users/${userId}`);
+        await axios.delete(`${API_BASE}/api/users/${userId}`);
         fetchUsers();
       } catch (error) {
         console.error("Error deleting user:", error);

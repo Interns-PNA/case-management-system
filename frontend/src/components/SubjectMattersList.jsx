@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -20,7 +21,7 @@ const SubjectMattersList = () => {
 
   const fetchSubjects = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/subject-matter");
+      const res = await axios.get(`${API_BASE}/api/subject-matter`);
       setSubjects(res.data);
       setFilteredSubjects(res.data); // ✅ Initialize filtered list
     } catch (err) {
@@ -30,7 +31,7 @@ const SubjectMattersList = () => {
 
   const handleAddSubject = async (newSubject) => {
     try {
-      await axios.post("http://localhost:5000/api/subject-matter", newSubject);
+      await axios.post(`${API_BASE}/api/subject-matter`, newSubject);
       fetchSubjects();
       setShowAddModal(false);
     } catch (err) {
@@ -41,7 +42,7 @@ const SubjectMattersList = () => {
   const handleUpdateSubject = async (updatedSubject) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/subject-matter/${updatedSubject._id}`,
+        `${API_BASE}/api/subject-matter/${updatedSubject._id}`,
         updatedSubject
       );
       fetchSubjects();
@@ -53,7 +54,7 @@ const SubjectMattersList = () => {
 
   const handleDeleteSubject = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/subject-matter/${id}`);
+      await axios.delete(`${API_BASE}/api/subject-matter/${id}`);
       fetchSubjects();
     } catch (err) {
       console.error("Error deleting subject matter:", err);

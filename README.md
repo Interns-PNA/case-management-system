@@ -138,14 +138,73 @@ Default admin login:
 - Password: `admin1`
 
 Important security note:
-- The backend currently enforces/resets the `admin` account on server startup.
-- For any real deployment, change the default credentials and remove the auto-reset behavior.
+- The backend creates the `admin` account only if it does not exist yet (password from `ADMIN_INITIAL_PASSWORD`, default `admin1` for local dev). An existing password is never reset on startup.
+- For any real deployment, set a strong `ADMIN_INITIAL_PASSWORD` and change the default credentials after first login.
 
 ## Future Improvements
-- Replace hardcoded API URLs with `VITE_API_BASE_URL` + a centralized Axios client
 - Implement secure authentication (JWT or sessions), password policy, and account lockout
 - Add audit trail (who changed what, when) and exportable activity logs
 - Add pagination + server-side searching for large datasets
 - Standardize validation and error responses (e.g., Zod/Joi + consistent API error shape)
-- Add tests (API: supertest; UI: component tests) and a CI pipeline
-- Deployment hardening: CORS allowlist, rate limiting, backup/restore strategy, upload retention policies
+- Add tests (API: supertest; UI: component tests)
+- Deployment hardening: rate limiting, backup/restore strategy, upload retention policies
+
+## Deployment
+
+The app is deployed to **Azure Container Apps** (Consumption plan, scales to zero) with **MongoDB Atlas** and images published to **GitHub Container Registry** by **GitHub Actions**.
+
+### Architecture
+
+```
+Internet → https://<frontend-fqdn>   cms-frontend (nginx: static UI + reverse proxy)
+                └─ /api/*, /uploads/* → http://cms-backend.internal...  cms-backend (Express, internal-only ingress)
+                                           └─ MONGO_URI → MongoDB Atlas
+```
+
+- The backend is only reachable from inside the Azure Container Apps environment (it has no API auth yet — keep it internal).
+- Uploaded case files persist on an **Azure Files** share mounted at `/app/uploads` (survives scale-to-zero).
+- Both apps scale `min 0 / max 1` replicas (cold start of a few seconds after idle).
+
+### Environment variables
+
+| Variable | Where | Description |
+|----------|-------|-------------|
+| `MONGO_URI` | backend (secret) | Atlas SRV string, incl. database name (e.g. `/case_management`) |
+| `PORT` | backend | Container listens on `8080` in production |
+| `ALLOWED_ORIGINS` | backend | Comma-separated CORS allowlist (empty = allow all, dev only) |
+| `ADMIN_INITIAL_PASSWORD` | backend (secret) | Password for the initial `admin` user (created only if missing) |
+| `VITE_API_BASE_URL` | frontend **build arg** | Empty in production (same-origin); `http://localhost:5000` in dev |
+| `BACKEND_URL` | frontend (runtime) | Internal URL nginx proxies to (set by provisioning) |
+
+Templates: `backend/.env.example`, `frontend/.env.example`, `.env.example` (compose).
+
+### CI/CD (`.github/workflows/ci-cd.yml`)
+
+On every push to `main` (or manual `workflow_dispatch`):
+1. **build** — ESLint + Vite build, backend syntax check, then builds & pushes
+   `ghcr.io/<owner>/<repo>-backend` and `-frontend` tagged `:{sha}` and `:latest`
+2. **deploy** — Azure OIDC login → syncs the `MONGO_URI` secret → updates both
+   Container Apps to the new image → waits for revisions → smoke-tests
+   `https://<frontend>/health` (full chain: nginx → proxy → API → MongoDB)
+
+Required GitHub Actions secrets:
+
+| Secret | Value |
+|--------|-------|
+| `MONGO_URI` | MongoDB Atlas connection string |
+| `AZURE_CLIENT_ID` | Azure AD app (federated credential) client ID |
+| `AZURE_TENANT_ID` | Azure AD tenant ID |
+| `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
+
+> The **deploy** job only works after the Azure resources exist
+> (`rg-mern-project`, environment `env-mern-project`, container apps
+> `cms-frontend`/`cms-backend`, Azure Files share). Provisioning is done once
+> via `infra/provision.ps1`.
+
+### Local smoke-test with Docker
+
+```bash
+cp .env.example .env        # set MONGO_URI
+docker compose up --build
+# open http://localhost:8080
+```

@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -22,7 +23,7 @@ const LocationsList = () => {
 
   const fetchLocations = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/locations");
+      const res = await axios.get(`${API_BASE}/api/locations`);
       setLocations(res.data);
       setFilteredLocations(res.data); // ✅ initialize filtered list
     } catch (err) {
@@ -32,7 +33,7 @@ const LocationsList = () => {
 
   const handleAddLocation = async (newLocation) => {
     try {
-      await axios.post("http://localhost:5000/api/locations", newLocation);
+      await axios.post(`${API_BASE}/api/locations`, newLocation);
       fetchLocations();
       setShowModal(false);
     } catch (err) {
@@ -48,7 +49,7 @@ const LocationsList = () => {
   const handleUpdateLocation = async (updatedLocation) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/locations/${updatedLocation._id}`,
+        `${API_BASE}/api/locations/${updatedLocation._id}`,
         updatedLocation
       );
       fetchLocations();
@@ -61,7 +62,7 @@ const LocationsList = () => {
   const handleDeleteLocation = async (id) => {
     if (window.confirm("Are you sure you want to delete this location?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/locations/${id}`);
+        await axios.delete(`${API_BASE}/api/locations/${id}`);
         fetchLocations();
       } catch (err) {
         console.error("Error deleting location:", err);

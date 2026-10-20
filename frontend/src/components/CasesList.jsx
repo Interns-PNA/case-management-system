@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -27,7 +28,7 @@ const CasesList = () => {
       const hearingDate = params.get("hearingDate");
       const upcomingFrom = params.get("upcomingFrom");
 
-      let apiUrl = "http://localhost:5000/api/cases";
+      let apiUrl = `${API_BASE}/api/cases`;
       const queryParams = new URLSearchParams();
 
       if (status) {
@@ -67,7 +68,7 @@ const CasesList = () => {
 
   const fetchBenches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/benches");
+      const res = await axios.get(`${API_BASE}/api/benches`);
       setBenches(res.data);
     } catch (err) {
       console.error("Error fetching benches:", err);
@@ -78,7 +79,7 @@ const CasesList = () => {
 
   const fetchStatuses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/statuses");
+      const res = await axios.get(`${API_BASE}/api/statuses`);
       setStatuses(res.data);
     } catch (err) {
       console.error("Error fetching statuses:", err);
@@ -152,19 +153,19 @@ const CasesList = () => {
         const caseId = editCase._id;
         console.log("Updating case with ID:", caseId);
         await axios.put(
-          `http://localhost:5000/api/cases/${caseId}`,
+          `${API_BASE}/api/cases/${caseId}`,
           updatedCase,
           {
             headers: {
               "Content-Type": "multipart/form-data",
             },
-          }
+          },
         );
       } else {
         // For regular JSON updates
         await axios.put(
-          `http://localhost:5000/api/cases/${updatedCase._id}`,
-          updatedCase
+          `${API_BASE}/api/cases/${updatedCase._id}`,
+          updatedCase,
         );
       }
 
@@ -176,7 +177,7 @@ const CasesList = () => {
       console.error("Error updating case:", err);
       console.error("Error response:", err.response?.data);
       notify.error(
-        `Failed to update case: ${err.response?.data?.error || err.message}`
+        `Failed to update case: ${err.response?.data?.error || err.message}`,
       );
     }
   };
@@ -184,7 +185,7 @@ const CasesList = () => {
   const handleDeleteCase = async (id) => {
     if (window.confirm("Are you sure you want to delete this case?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/cases/${id}`);
+        await axios.delete(`${API_BASE}/api/cases/${id}`);
         // If the deleted case is being edited, close the edit modal
         if (editCase && editCase._id === id) {
           setEditCase(null);
@@ -230,19 +231,19 @@ const CasesList = () => {
               ? editCase.location[0]._id
               : editCase.location[0]
             : typeof editCase.location === "object" && editCase.location?._id
-            ? editCase.location._id
-            : editCase.location || "",
+              ? editCase.location._id
+              : editCase.location || "",
         bench: editCase.bench || "",
         judges:
           Array.isArray(editCase.judges) && editCase.judges.length > 0
             ? editCase.judges.map((judge) =>
-                typeof judge === "object" && judge?._id ? judge._id : judge
+                typeof judge === "object" && judge?._id ? judge._id : judge,
               )
             : typeof editCase.judges === "object" && editCase.judges?._id
-            ? [editCase.judges._id]
-            : editCase.judges
-            ? [editCase.judges]
-            : [],
+              ? [editCase.judges._id]
+              : editCase.judges
+                ? [editCase.judges]
+                : [],
         subjectMatter:
           typeof editCase.subjectMatter === "object" &&
           editCase.subjectMatter?._id
@@ -300,6 +301,184 @@ const CasesList = () => {
         />
         <div style={{ width: "100px", height: "40px" }}></div>
       </div>
+
+      {/* Centralized View Modal (render once) */}
+      {viewCase && (
+        <div className="modal-overlay" style={{ zIndex: 2000 }}>
+          <div
+            className="modal"
+            style={{ minWidth: 400, maxWidth: 700, position: "relative" }}
+          >
+            <button
+              className="btn-cancel"
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 16,
+                fontSize: 32,
+                background: "none",
+                border: "none",
+                color: "#888",
+                cursor: "pointer",
+                zIndex: 10,
+              }}
+              onClick={() => setViewCase(null)}
+              title="Close"
+            >
+              &times;
+            </button>
+            <h2
+              style={{
+                fontWeight: "bold",
+                fontSize: "20px",
+                marginBottom: 12,
+                color: "#2f80ed",
+              }}
+            >
+              Case Summary
+            </h2>
+            <div
+              style={{
+                marginBottom: 16,
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+              }}
+            >
+              <div>
+                <strong>Case No:</strong> {viewCase.caseNo}
+              </div>
+              <div>
+                <strong>Title:</strong> {viewCase.caseTitle}
+              </div>
+              <div>
+                <strong>Status:</strong> {viewCase.status}
+              </div>
+              <div>
+                <strong>Department:</strong> {viewCase.ministry}
+              </div>
+              <div>
+                <strong>Court:</strong> {viewCase.court?.name || viewCase.court}
+              </div>
+              <div>
+                <strong>Location:</strong>{" "}
+                {viewCase.location?.name || viewCase.location}
+              </div>
+              <div>
+                <strong>Bench:</strong>{" "}
+                {(() => {
+                  if (!viewCase.bench) return "–";
+                  if (typeof viewCase.bench === "object" && viewCase.bench.name)
+                    return viewCase.bench.name;
+                  const foundBench = benches.find(
+                    (b) => b._id === viewCase.bench,
+                  );
+                  return foundBench ? foundBench.name : viewCase.bench;
+                })()}
+              </div>
+              <div>
+                <strong>Judge:</strong>{" "}
+                {Array.isArray(viewCase.judges)
+                  ? viewCase.judges.map((j) => j.name || j).join(", ")
+                  : viewCase.judges}
+              </div>
+              <div>
+                <strong>Subject Matter:</strong>{" "}
+                {viewCase.subjectMatter?.name || viewCase.subjectMatter}
+              </div>
+              <div>
+                <strong>Next Hearing:</strong>{" "}
+                {viewCase.nextHearingDate
+                  ? new Date(viewCase.nextHearingDate).toLocaleDateString()
+                  : "–"}
+              </div>
+            </div>
+
+            {/* Attached file or placeholder */}
+            {viewCase.files && viewCase.files.length > 0 ? (
+              <div style={{ marginBottom: 16 }}>
+                <strong>Attached File:</strong>
+                <br />
+                {viewCase.files[0] ? (
+                  <a
+                    href={`${API_BASE}/uploads/${viewCase.files[0]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "#2f80ed",
+                      textDecoration: "underline",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {viewCase.files[0]}
+                  </a>
+                ) : (
+                  <span style={{ color: "#888", fontSize: "15px" }}>
+                    No file chosen
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div style={{ marginBottom: 16, color: "#888" }}>
+                No PDF or image attached.
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: 24,
+                gap: 12,
+              }}
+            >
+              <button
+                style={{
+                  background: "#2f80ed",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  padding: "10px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(47,128,237,0.08)",
+                }}
+                onClick={() => {
+                  const win = window.open("", "_blank");
+                  win.document.write(`...`);
+                  win.document.close();
+                  win.onload = function () {
+                    win.focus();
+                    win.print();
+                  };
+                }}
+              >
+                Download PDF
+              </button>
+              <button
+                style={{
+                  background: "#888",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "5px",
+                  padding: "10px 24px",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(47,128,237,0.08)",
+                }}
+                onClick={() => {
+                  const win = window.open("", "_blank");
+                  win.document.write(`...`);
+                  win.document.close();
+                }}
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="departments-table">
         <div
@@ -366,7 +545,7 @@ const CasesList = () => {
                 onClick={async () => {
                   try {
                     const res = await axios.get(
-                      `http://localhost:5000/api/cases/${c._id}`
+                      `${API_BASE}/api/cases/${c._id}`,
                     );
                     setViewCase(res.data);
                   } catch {
@@ -384,12 +563,12 @@ const CasesList = () => {
                     onClick={async () => {
                       try {
                         const res = await axios.get(
-                          `http://localhost:5000/api/cases/${c._id}`
+                          `${API_BASE}/api/cases/${c._id}`,
                         );
                         setEditCase(res.data);
                       } catch {
                         notify.error(
-                          "Failed to fetch case details for editing."
+                          "Failed to fetch case details for editing.",
                         );
                       }
                     }}
@@ -407,662 +586,6 @@ const CasesList = () => {
                 </>
               )}
             </span>
-            {/* View Modal */}
-            {viewCase && (
-              <div className="modal-overlay" style={{ zIndex: 1000 }}>
-                <div
-                  className="modal"
-                  style={{ minWidth: 400, maxWidth: 600, position: "relative" }}
-                >
-                  <button
-                    className="btn-cancel"
-                    style={{
-                      position: "absolute",
-                      top: 12,
-                      right: 16,
-                      fontSize: 32,
-                      background: "none",
-                      border: "none",
-                      color: "#888",
-                      cursor: "pointer",
-                      zIndex: 10,
-                    }}
-                    onClick={() => setViewCase(null)}
-                    title="Close"
-                  >
-                    &times;
-                  </button>
-                  <h2
-                    style={{
-                      fontWeight: "bold",
-                      fontSize: "20px",
-                      marginBottom: 12,
-                      color: "#2f80ed",
-                    }}
-                  >
-                    Case Summary
-                  </h2>
-                  <div
-                    style={{
-                      marginBottom: 16,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "10px",
-                    }}
-                  >
-                    <div>
-                      <strong>Case No:</strong> {viewCase.caseNo}
-                    </div>
-                    <div>
-                      <strong>Title:</strong> {viewCase.caseTitle}
-                    </div>
-                    <div>
-                      <strong>Status:</strong> {viewCase.status}
-                    </div>
-                    <div>
-                      <strong>Department:</strong> {viewCase.ministry}
-                    </div>
-                    <div>
-                      <strong>Court:</strong>{" "}
-                      {viewCase.court?.name || viewCase.court}
-                    </div>
-                    <div>
-                      <strong>Location:</strong>{" "}
-                      {viewCase.location?.name || viewCase.location}
-                    </div>
-                    <div>
-                      <strong>Bench:</strong>{" "}
-                      {(() => {
-                        if (!viewCase.bench) return "–";
-                        if (
-                          typeof viewCase.bench === "object" &&
-                          viewCase.bench.name
-                        )
-                          return viewCase.bench.name;
-                        const foundBench = benches.find(
-                          (b) => b._id === viewCase.bench
-                        );
-                        return foundBench ? foundBench.name : viewCase.bench;
-                      })()}
-                    </div>
-                    <div>
-                      <strong>Judge:</strong>{" "}
-                      {Array.isArray(viewCase.judges)
-                        ? viewCase.judges.map((j) => j.name || j).join(", ")
-                        : viewCase.judges}
-                    </div>
-                    <div>
-                      <strong>Subject Matter:</strong>{" "}
-                      {viewCase.subjectMatter?.name || viewCase.subjectMatter}
-                    </div>
-                    <div>
-                      <strong>Next Hearing:</strong>{" "}
-                      {viewCase.nextHearingDate
-                        ? new Date(
-                            viewCase.nextHearingDate
-                          ).toLocaleDateString()
-                        : "–"}
-                    </div>
-                    {/* Initial Remarks removed from here, will be shown in remarks table below */}
-                  </div>
-                  {/* PDF or image preview placeholder */}
-                  {viewCase.files && viewCase.files.length > 0 ? (
-                    <div style={{ marginBottom: 16 }}>
-                      <strong>Attached File:</strong>
-                      <br />
-                      {viewCase.files[0] ? (
-                        <a
-                          href={`http://localhost:5000/uploads/${viewCase.files[0]}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: "#2f80ed",
-                            textDecoration: "underline",
-                            fontSize: "15px",
-                          }}
-                        >
-                          {viewCase.files[0]}
-                        </a>
-                      ) : (
-                        <span style={{ color: "#888", fontSize: "15px" }}>
-                          No file chosen
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <div style={{ marginBottom: 16, color: "#888" }}>
-                      No PDF or image attached.
-                    </div>
-                  )}
-
-                  {/* Print/Export Button */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      marginTop: 24,
-                      gap: 12,
-                    }}
-                  >
-                    <button
-                      style={{
-                        background: "#2f80ed",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                        padding: "10px 24px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        boxShadow: "0 2px 8px rgba(47,128,237,0.08)",
-                      }}
-                      onClick={() => {
-                        const win = window.open("", "_blank");
-                        win.document.write(`
-                          <html>
-                            <head>
-                              <title>Case Summary Document</title>
-                              <style>
-                                @media print {
-                                  @page { size: A4; margin: 20mm; }
-                                }
-                                body { font-family: Arial, sans-serif; background: #fff; margin: 0; padding: 0; }
-                                .a4 {
-                                  width: 210mm;
-                                  min-height: 297mm;
-                                  margin: auto;
-                                  background: #fff;
-                                  box-shadow: 0 0 8px #ccc;
-                                  padding: 32px 40px;
-                                }
-                                .court-header {
-                                  text-align: center;
-                                  font-size: 1.5em;
-                                  font-weight: bold;
-                                  margin-bottom: 18px;
-                                  letter-spacing: 1px;
-                                }
-                                table {
-                                  width: 100%;
-                                  border-collapse: collapse;
-                                  margin-bottom: 18px;
-                                }
-                                th, td {
-                                  border: 1px solid #bbb;
-                                  padding: 8px 10px;
-                                  font-size: 15px;
-                                  text-align: left;
-                                }
-                                th {
-                                  background: #f2f2f2;
-                                  font-weight: bold;
-                                }
-                                .section-title {
-                                  font-weight: bold;
-                                  margin-top: 18px;
-                                  margin-bottom: 8px;
-                                  font-size: 1.1em;
-                                  color: #2f80ed;
-                                }
-                                ul {
-                                  margin: 0 0 0 18px;
-                                  padding: 0;
-                                }
-                                li {
-                                  margin-bottom: 6px;
-                                  font-size: 15px;
-                                }
-                              </style>
-                            </head>
-                            <body>
-                              <div class="a4">
-                                <div class="court-header">${
-                                  typeof viewCase.court === "object" &&
-                                  viewCase.court?.name
-                                    ? viewCase.court.name
-                                    : typeof viewCase.court === "string"
-                                    ? viewCase.court
-                                    : "Court"
-                                }</div>
-                                <table>
-                                  <tr>
-                                    <th>File No.</th>
-                                    <td>${viewCase.fileNo || "–"}</td>
-                                    <th>Case Title</th>
-                                    <td>${viewCase.caseTitle || "–"}</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Case No.</th>
-                                    <td>${viewCase.caseNo || "–"}</td>
-                                    <th>Status</th>
-                                    <td>${viewCase.status || "–"}</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Counsel / Law Officer</th>
-                                    <td>${
-                                      viewCase.lawOfficer ||
-                                      viewCase.advocate ||
-                                      "–"
-                                    }</td>
-                                    <th>Court</th>
-                                    <td>${
-                                      viewCase.court?.name ||
-                                      viewCase.court ||
-                                      "–"
-                                    }</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Hearing Date</th>
-                                    <td>${
-                                      viewCase.hearingDate
-                                        ? new Date(
-                                            viewCase.hearingDate
-                                          ).toLocaleDateString()
-                                        : "–"
-                                    }</td>
-                                    <th>Next Hearing</th>
-                                    <td>${
-                                      viewCase.nextHearingDate
-                                        ? new Date(
-                                            viewCase.nextHearingDate
-                                          ).toLocaleDateString()
-                                        : "–"
-                                    }</td>
-                                </table>
-                                <div class="section-title">Brief Facts of the Case</div>
-                                <table style="width:100%; border-collapse:collapse; margin-bottom:18px;">
-                                  <tbody>
-                                    <tr>
-                                      <th style="text-align:left; width:180px;">Department</th>
-                                      <td>${viewCase.ministry || "–"}</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Location</th>
-                                      <td>${
-                                        viewCase.location?.name ||
-                                        viewCase.location ||
-                                        "–"
-                                      }</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Bench</th>
-                                      <td>${(() => {
-                                        if (!viewCase.bench) return "–";
-                                        if (
-                                          typeof viewCase.bench === "object" &&
-                                          viewCase.bench.name
-                                        )
-                                          return viewCase.bench.name;
-                                        const foundBench = benches.find(
-                                          (b) => b._id === viewCase.bench
-                                        );
-                                        return foundBench
-                                          ? foundBench.name
-                                          : viewCase.bench;
-                                      })()}</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Judge</th>
-                                      <td>${
-                                        Array.isArray(viewCase.judges)
-                                          ? viewCase.judges
-                                              .map((j) => j.name || j)
-                                              .join(", ")
-                                          : viewCase.judges || "–"
-                                      }</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Subject Matter</th>
-                                      <td>${
-                                        viewCase.subjectMatter?.name ||
-                                        viewCase.subjectMatter ||
-                                        "–"
-                                      }</td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                                <div class="section-title">Case Remarks</div>
-                                <table>
-                                  <thead>
-                                    <tr>
-                                      <th>Hearing Date</th>
-                                      <th>Case Remarks</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    ${(() => {
-                                      let rows = [];
-                                      // Prefer caseRemarks if present, else fallback to remarksHistory
-                                      if (
-                                        viewCase.caseRemarks &&
-                                        Array.isArray(viewCase.caseRemarks) &&
-                                        viewCase.caseRemarks.length > 0
-                                      ) {
-                                        rows = viewCase.caseRemarks.map(
-                                          (item) => `
-                                          <tr>
-                                            <td>${
-                                              item.date
-                                                ? new Date(
-                                                    item.date
-                                                  ).toLocaleDateString()
-                                                : "–"
-                                            }</td>
-                                            <td>${item.remarks || "–"}</td>
-                                          </tr>
-                                        `
-                                        );
-                                      } else if (
-                                        viewCase.remarksHistory &&
-                                        Array.isArray(
-                                          viewCase.remarksHistory
-                                        ) &&
-                                        viewCase.remarksHistory.length > 0
-                                      ) {
-                                        rows = viewCase.remarksHistory.map(
-                                          (item) => `
-                                          <tr>
-                                            <td>${
-                                              item.date
-                                                ? new Date(
-                                                    item.date
-                                                  ).toLocaleDateString()
-                                                : "–"
-                                            }</td>
-                                            <td>${item.remarks || "–"}</td>
-                                          </tr>
-                                        `
-                                        );
-                                      } else if (
-                                        viewCase.initialRemarks ||
-                                        viewCase.remarks
-                                      ) {
-                                        rows.push(`
-                                          <tr>
-                                            <td>–</td>
-                                            <td>${
-                                              viewCase.initialRemarks ||
-                                              viewCase.remarks
-                                            }</td>
-                                          </tr>
-                                        `);
-                                      }
-                                      return rows.join("");
-                                    })()}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </body>
-                          </html>
-                        `);
-                        win.document.close();
-                        // Wait for content to load, then trigger print dialog
-                        win.onload = function () {
-                          win.focus();
-                          win.print();
-                        };
-                      }}
-                    >
-                      Download PDF
-                    </button>
-                    <button
-                      style={{
-                        background: "#888",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "5px",
-                        padding: "10px 24px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        boxShadow: "0 2px 8px rgba(47,128,237,0.08)",
-                      }}
-                      onClick={() => {
-                        const win = window.open("", "_blank");
-                        win.document.write(`
-                          <html>
-                            <head>
-                              <title>Case Summary Document</title>
-                              <style>
-                                @media print {
-                                  @page { size: A4; margin: 20mm; }
-                                }
-                                body { font-family: Arial, sans-serif; background: #fff; margin: 0; padding: 0; }
-                                .a4 {
-                                  width: 210mm;
-                                  min-height: 297mm;
-                                  margin: auto;
-                                  background: #fff;
-                                  box-shadow: 0 0 8px #ccc;
-                                  padding: 32px 40px;
-                                }
-                                .court-header {
-                                  text-align: center;
-                                  font-size: 1.5em;
-                                  font-weight: bold;
-                                  margin-bottom: 18px;
-                                  letter-spacing: 1px;
-                                }
-                                table {
-                                  width: 100%;
-                                  border-collapse: collapse;
-                                  margin-bottom: 18px;
-                                }
-                                th, td {
-                                  border: 1px solid #bbb;
-                                  padding: 8px 10px;
-                                  font-size: 15px;
-                                  text-align: left;
-                                }
-                                th {
-                                  background: #f2f2f2;
-                                  font-weight: bold;
-                                }
-                                .section-title {
-                                  font-weight: bold;
-                                  margin-top: 18px;
-                                  margin-bottom: 8px;
-                                  font-size: 1.1em;
-                                  color: #2f80ed;
-                                }
-                                ul {
-                                  margin: 0 0 0 18px;
-                                  padding: 0;
-                                }
-                                li {
-                                  margin-bottom: 6px;
-                                  font-size: 15px;
-                                }
-                              </style>
-                            </head>
-                            <body>
-                              <div class="a4">
-                                <div class="court-header">${
-                                  typeof viewCase.court === "object" &&
-                                  viewCase.court?.name
-                                    ? viewCase.court.name
-                                    : typeof viewCase.court === "string"
-                                    ? viewCase.court
-                                    : "Court"
-                                }</div>
-                                <table>
-                                  <tr>
-                                    <th>File No.</th>
-                                    <td>${viewCase.fileNo || "–"}</td>
-                                    <th>Case Title</th>
-                                    <td>${viewCase.caseTitle || "–"}</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Case No.</th>
-                                    <td>${viewCase.caseNo || "–"}</td>
-                                    <th>Status</th>
-                                    <td>${viewCase.status || "–"}</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Counsel / Law Officer</th>
-                                    <td>${
-                                      viewCase.lawOfficer ||
-                                      viewCase.advocate ||
-                                      "–"
-                                    }</td>
-                                    <th>Court</th>
-                                    <td>${
-                                      viewCase.court?.name ||
-                                      viewCase.court ||
-                                      "–"
-                                    }</td>
-                                  </tr>
-                                  <tr>
-                                    <th>Hearing Date</th>
-                                    <td>${
-                                      viewCase.hearingDate
-                                        ? new Date(
-                                            viewCase.hearingDate
-                                          ).toLocaleDateString()
-                                        : "–"
-                                    }</td>
-                                    <th>Next Hearing</th>
-                                    <td>${
-                                      viewCase.nextHearingDate
-                                        ? new Date(
-                                            viewCase.nextHearingDate
-                                          ).toLocaleDateString()
-                                        : "–"
-                                    }</td>
-                                </table>
-                                <div class="section-title">Brief Facts of the Case</div>
-                                <table style="width:100%; border-collapse:collapse; margin-bottom:18px;">
-                                  <tbody>
-                                    <tr>
-                                      <th style="text-align:left; width:180px;">Department</th>
-                                      <td>${viewCase.ministry || "–"}</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Location</th>
-                                      <td>${
-                                        viewCase.location?.name ||
-                                        viewCase.location ||
-                                        "–"
-                                      }</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Bench</th>
-                                      <td>${(() => {
-                                        if (!viewCase.bench) return "–";
-                                        if (
-                                          typeof viewCase.bench === "object" &&
-                                          viewCase.bench.name
-                                        )
-                                          return viewCase.bench.name;
-                                        const foundBench = benches.find(
-                                          (b) => b._id === viewCase.bench
-                                        );
-                                        return foundBench
-                                          ? foundBench.name
-                                          : viewCase.bench;
-                                      })()}</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Judge</th>
-                                      <td>${
-                                        Array.isArray(viewCase.judges)
-                                          ? viewCase.judges
-                                              .map((j) => j.name || j)
-                                              .join(", ")
-                                          : viewCase.judges || "–"
-                                      }</td>
-                                    </tr>
-                                    <tr>
-                                      <th style="text-align:left;">Subject Matter</th>
-                                      <td>${
-                                        viewCase.subjectMatter?.name ||
-                                        viewCase.subjectMatter ||
-                                        "–"
-                                      }</td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                                <div class="section-title">Case Remarks</div>
-                                <table>
-                                  <thead>
-                                    <tr>
-                                      <th>Hearing Date</th>
-                                      <th>Case Remarks</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    ${(() => {
-                                      let rows = [];
-                                      // Prefer caseRemarks if present, else fallback to remarksHistory
-                                      if (
-                                        viewCase.caseRemarks &&
-                                        Array.isArray(viewCase.caseRemarks) &&
-                                        viewCase.caseRemarks.length > 0
-                                      ) {
-                                        rows = viewCase.caseRemarks.map(
-                                          (item) => `
-                                          <tr>
-                                            <td>${
-                                              item.date
-                                                ? new Date(
-                                                    item.date
-                                                  ).toLocaleDateString()
-                                                : "–"
-                                            }</td>
-                                            <td>${item.remarks || "–"}</td>
-                                          </tr>
-                                        `
-                                        );
-                                      } else if (
-                                        viewCase.remarksHistory &&
-                                        Array.isArray(
-                                          viewCase.remarksHistory
-                                        ) &&
-                                        viewCase.remarksHistory.length > 0
-                                      ) {
-                                        rows = viewCase.remarksHistory.map(
-                                          (item) => `
-                                          <tr>
-                                            <td>${
-                                              item.date
-                                                ? new Date(
-                                                    item.date
-                                                  ).toLocaleDateString()
-                                                : "–"
-                                            }</td>
-                                            <td>${item.remarks || "–"}</td>
-                                          </tr>
-                                        `
-                                        );
-                                      } else if (
-                                        viewCase.initialRemarks ||
-                                        viewCase.remarks
-                                      ) {
-                                        rows.push(`
-                                          <tr>
-                                            <td>–</td>
-                                            <td>${
-                                              viewCase.initialRemarks ||
-                                              viewCase.remarks
-                                            }</td>
-                                          </tr>
-                                        `);
-                                      }
-                                      return rows.join("");
-                                    })()}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </body>
-                          </html>
-                        `);
-                        win.document.close();
-                      }}
-                    >
-                      Print
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         ))}
       </div>

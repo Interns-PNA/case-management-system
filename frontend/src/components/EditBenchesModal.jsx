@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { notify } from "../lib/notify";
@@ -17,7 +18,7 @@ const EditBenchesModal = ({ bench, onClose, onUpdate }) => {
 
   const fetchCourts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/courts");
+      const res = await axios.get(`${API_BASE}/api/courts`);
       setCourts(res.data);
     } catch (err) {
       console.error("Error fetching courts:", err);

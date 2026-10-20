@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { notify } from "../lib/notify";
@@ -16,7 +17,7 @@ const EditCourtModal = ({ court, onClose, onUpdate }) => {
 
   const fetchLocations = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/locations");
+      const res = await axios.get(`${API_BASE}/api/locations`);
       setLocations(res.data);
     } catch (err) {
       console.error("Error fetching locations:", err);

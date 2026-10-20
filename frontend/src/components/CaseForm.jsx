@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { notify } from "../lib/notify";
@@ -36,7 +37,7 @@ const FileStatusDisplay = ({ isEdit, formData, fileInputId }) => {
       <span style={{ fontSize: "14px", color: "#666" }}>
         Current file:
         <a
-          href={`http://localhost:5000/uploads/${formData.files[0]}`}
+          href={`${API_BASE}/uploads/${formData.files[0]}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ marginLeft: "6px", color: "#2f80ed" }}
@@ -85,7 +86,7 @@ const RemarkFileStatusDisplay = ({ remark, fileInputId }) => {
       <span style={{ fontSize: "14px", color: "#666" }}>
         Current file:
         <a
-          href={`http://localhost:5000/uploads/${remark.file}`}
+          href={`${API_BASE}/uploads/${remark.file}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ marginLeft: "6px", color: "#2f80ed" }}
@@ -257,7 +258,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
   }, []);
   const fetchBenches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/benches");
+      const res = await axios.get(`${API_BASE}/api/benches`);
       setBenches(res.data);
     } catch (error) {
       console.error("Bench fetch failed:", error);
@@ -268,11 +269,11 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
     try {
       const [courtRes, locationRes, judgeRes, subjectRes, statusRes] =
         await Promise.all([
-          axios.get("http://localhost:5000/api/courts"),
-          axios.get("http://localhost:5000/api/locations"),
-          axios.get("http://localhost:5000/api/judges"),
-          axios.get("http://localhost:5000/api/subject-matter"),
-          axios.get("http://localhost:5000/api/statuses"),
+          axios.get(`${API_BASE}/api/courts`),
+          axios.get(`${API_BASE}/api/locations`),
+          axios.get(`${API_BASE}/api/judges`),
+          axios.get(`${API_BASE}/api/subject-matter`),
+          axios.get(`${API_BASE}/api/statuses`),
         ]);
       setCourts(courtRes.data);
       setLocations(locationRes.data);
@@ -286,7 +287,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/departments");
+      const res = await axios.get(`${API_BASE}/api/departments`);
       setDepartments(res.data);
     } catch (error) {
       console.error("Department fetch failed:", error);
@@ -384,7 +385,7 @@ const CaseForm = ({ formData, setFormData, onCancel, onSubmit, isEdit }) => {
 
     // Add mode: local submit
     try {
-      await axios.post("http://localhost:5000/api/cases", formData, {
+      await axios.post(`${API_BASE}/api/cases`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

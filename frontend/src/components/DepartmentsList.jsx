@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 // components/DepartmentsList.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -21,7 +22,7 @@ const DepartmentsList = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/departments");
+      const res = await axios.get(`${API_BASE}/api/departments`);
       setDepartments(res.data);
       setFilteredDepartments(res.data);
     } catch (err) {
@@ -42,7 +43,7 @@ const DepartmentsList = () => {
 
   const handleAddDepartment = async (newDept) => {
     try {
-      await axios.post("http://localhost:5000/api/departments", newDept);
+      await axios.post(`${API_BASE}/api/departments`, newDept);
       fetchDepartments();
       setShowAddModal(false);
     } catch (err) {
@@ -53,7 +54,7 @@ const DepartmentsList = () => {
   const handleUpdateDepartment = async (updatedDept) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/departments/${updatedDept._id}`,
+        `${API_BASE}/api/departments/${updatedDept._id}`,
         updatedDept
       );
       fetchDepartments();
@@ -66,7 +67,7 @@ const DepartmentsList = () => {
   const handleDeleteDepartment = async (id) => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/departments/${id}`);
+        await axios.delete(`${API_BASE}/api/departments/${id}`);
         fetchDepartments();
       } catch (err) {
         console.error("Error deleting department:", err);

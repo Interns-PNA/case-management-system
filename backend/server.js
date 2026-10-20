@@ -13,29 +13,23 @@ const User = require("./models/User");
 const app = express();
 dotenv.config();
 
-// Ensure admin user exists
+// Create the initial admin user only if it does not exist yet.
+// Never resets an existing admin password on startup.
 async function ensureAdminUser() {
   try {
     const admin = await User.findOne({ username: "admin" });
-    if (!admin) {
-      const newAdmin = new User({
-        username: "admin",
-        password: "admin1",
-        fullName: "Admin", // Required field
-        permission: "read-write",
-      });
-      await newAdmin.save();
-      console.log("Default admin user created: admin / admin1");
-    } else {
-      // Always reset admin password, permission, and fullName on server start
-      admin.password = "admin1"; // Will be re-hashed by pre-save
-      admin.permission = "read-write";
-      admin.fullName = "Admin";
-      await admin.save();
-      console.log(
-        "Admin user password, permission, and fullName reset to default"
-      );
+    if (admin) {
+      return;
     }
+    const password = process.env.ADMIN_INITIAL_PASSWORD || "admin1";
+    const newAdmin = new User({
+      username: "admin",
+      password,
+      fullName: "Admin", // Required field
+      permission: "read-write",
+    });
+    await newAdmin.save();
+    console.log("Default admin user created (username: admin)");
   } catch (err) {
     console.error("Error ensuring admin user:", err);
   }
@@ -46,8 +40,36 @@ connectDB().then(() => {
   ensureAdminUser();
 });
 
-app.use(cors());
+// CORS: restrict to an allowlist when ALLOWED_ORIGINS is set,
+// otherwise allow all origins (convenient for local development).
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors(
+    allowedOrigins.length > 0
+      ? { origin: (origin, callback) => {
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error(`Origin ${origin} not allowed by CORS`));
+          }
+        } }
+      : undefined
+  )
+);
 app.use(express.json());
+
+// Health endpoint (used by Container Apps probes and CI smoke tests)
+app.get("/health", (req, res) => {
+  const dbUp = mongoose.connection.readyState === 1;
+  res.status(dbUp ? 200 : 503).json({
+    status: dbUp ? "ok" : "degraded",
+    db: dbUp ? "up" : "down",
+  });
+});
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

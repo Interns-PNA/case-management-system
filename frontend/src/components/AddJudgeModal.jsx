@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { notify } from "../lib/notify";
@@ -11,10 +12,10 @@ const AddJudgeModal = ({ onClose, onSubmit }) => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/courts")
+      .get(`${API_BASE}/api/courts`)
       .then((res) => setCourts(res.data));
     axios
-      .get("http://localhost:5000/api/locations")
+      .get(`${API_BASE}/api/locations`)
       .then((res) => setLocations(res.data));
   }, []);
 

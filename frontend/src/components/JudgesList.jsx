@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -20,7 +21,7 @@ const JudgesList = () => {
 
   const fetchJudges = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/judges");
+      const res = await axios.get(`${API_BASE}/api/judges`);
       setJudges(res.data);
       setFilteredJudges(res.data); // ✅ sync filtered initially
     } catch (err) {
@@ -42,7 +43,7 @@ const JudgesList = () => {
 
   const handleAddJudge = async (newJudge) => {
     try {
-      await axios.post("http://localhost:5000/api/judges", newJudge);
+      await axios.post(`${API_BASE}/api/judges`, newJudge);
       fetchJudges();
       setShowAddModal(false);
     } catch (err) {
@@ -53,7 +54,7 @@ const JudgesList = () => {
   const handleUpdateJudge = async (updatedJudge) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/judges/${updatedJudge._id}`,
+        `${API_BASE}/api/judges/${updatedJudge._id}`,
         updatedJudge
       );
       fetchJudges();
@@ -65,7 +66,7 @@ const JudgesList = () => {
 
   const handleDeleteJudge = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/judges/${id}`);
+      await axios.delete(`${API_BASE}/api/judges/${id}`);
       fetchJudges();
     } catch (err) {
       console.error("Error deleting judge:", err);

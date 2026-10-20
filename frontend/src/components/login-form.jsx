@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -38,7 +39,7 @@ export default function LoginForm(props) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/users/authenticate",
+        `${API_BASE}/api/users/authenticate`,
         {
           username: formData.username,
           password: formData.password,

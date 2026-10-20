@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
@@ -20,7 +21,7 @@ const BenchesList = () => {
 
   const fetchBenches = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/benches");
+      const res = await axios.get(`${API_BASE}/api/benches`);
       setBenches(res.data);
       setFilteredBenches(res.data);
     } catch (err) {
@@ -30,7 +31,7 @@ const BenchesList = () => {
 
   const handleAddBench = async (newBench) => {
     try {
-      await axios.post("http://localhost:5000/api/benches", newBench);
+      await axios.post(`${API_BASE}/api/benches`, newBench);
       fetchBenches();
       setShowAddModal(false);
     } catch (err) {
@@ -41,8 +42,8 @@ const BenchesList = () => {
   const handleUpdateBench = async (updatedBench) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/benches/${updatedBench._id}`,
-        updatedBench
+        `${API_BASE}/api/benches/${updatedBench._id}`,
+        updatedBench,
       );
       fetchBenches();
       setEditBench(null);
@@ -53,7 +54,7 @@ const BenchesList = () => {
 
   const handleDeleteBench = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/benches/${id}`);
+      await axios.delete(`${API_BASE}/api/benches/${id}`);
       fetchBenches();
     } catch (err) {
       console.error("Error deleting bench:", err);
@@ -69,8 +70,8 @@ const BenchesList = () => {
           bench.courts.some((court) =>
             typeof court === "object"
               ? court.name.toLowerCase().includes(term.toLowerCase())
-              : court.toLowerCase().includes(term.toLowerCase())
-          ))
+              : court.toLowerCase().includes(term.toLowerCase()),
+          )),
     );
     setFilteredBenches(filtered);
   };
@@ -121,7 +122,7 @@ const BenchesList = () => {
                         <li key={court._id}>{court.name}</li>
                       ) : (
                         <li key={court}>{court}</li>
-                      )
+                      ),
                     )
                   ) : (
                     <li>–</li>

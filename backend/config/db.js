@@ -4,10 +4,11 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const uri = process.env.MONGO_URI || process.env.MongoURI;
+    if (!uri) {
+      throw new Error("MONGO_URI (or legacy MongoURI) is not set");
+    }
+    await mongoose.connect(uri);
     console.log("MongoDB Connected 🚀");
   } catch (err) {
     console.error("MongoDB Connection Failed ❌", err);

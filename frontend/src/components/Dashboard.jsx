@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
@@ -46,12 +47,13 @@ const Dashboard = () => {
   useEffect(() => {
     fetchCounts();
     fetchHearingDates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMonth, currentYear]);
 
   const fetchCounts = async () => {
     try {
       // Fetch all summary stats from backend
-      const res = await axios.get("http://localhost:5000/api/summary/counts");
+      const res = await axios.get(`${API_BASE}/api/summary/counts`);
       // The backend should return all needed fields, otherwise fallback to 0
       setCounts({
         courts: res.data.courts || 0,
@@ -78,7 +80,7 @@ const Dashboard = () => {
       const endDate = new Date(currentYear, currentMonth + 1, 0);
 
       const res = await axios.get(
-        `http://localhost:5000/api/cases?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
+        `${API_BASE}/api/cases?startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
       );
 
       // Extract unique hearing dates for the current month

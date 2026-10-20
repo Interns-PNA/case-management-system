@@ -1,3 +1,4 @@
+import { API_BASE } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddStatusModal from "./AddStatusModal";
@@ -19,7 +20,7 @@ const StatusList = () => {
 
   const fetchStatuses = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/statuses");
+      const res = await axios.get(`${API_BASE}/api/statuses`);
       setStatuses(res.data);
     } catch (err) {
       console.error("Error fetching statuses:", err);
@@ -28,7 +29,7 @@ const StatusList = () => {
 
   const handleAddStatus = async (newStatus) => {
     try {
-      await axios.post("http://localhost:5000/api/statuses", newStatus);
+      await axios.post(`${API_BASE}/api/statuses`, newStatus);
       fetchStatuses();
       setShowAddModal(false);
     } catch (err) {
@@ -39,7 +40,7 @@ const StatusList = () => {
   const handleUpdateStatus = async (updatedStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/statuses/${updatedStatus._id}`,
+        `${API_BASE}/api/statuses/${updatedStatus._id}`,
         updatedStatus,
       );
       fetchStatuses();
@@ -51,7 +52,7 @@ const StatusList = () => {
 
   const handleDeleteStatus = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/statuses/${id}`);
+      await axios.delete(`${API_BASE}/api/statuses/${id}`);
       fetchStatuses();
     } catch (err) {
       console.error("Error deleting status:", err);
