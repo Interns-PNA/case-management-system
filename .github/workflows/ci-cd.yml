@@ -109,7 +109,7 @@ jobs:
         run: |
           az containerapp secret set \
             --name cms-backend \
-            --resource-group rg-mern-project \
+            --resource-group rg-case-project \
             --secret-name mongo-uri \
             --value "$MONGO_URI" \
             --output none
@@ -118,7 +118,7 @@ jobs:
         run: |
           az containerapp update \
             --name cms-backend \
-            --resource-group rg-mern-project \
+            --resource-group rg-case-project \
             --image "${{ needs.build.outputs.backend_image }}:${{ needs.build.outputs.image_tag }}" \
             --output none
 
@@ -126,7 +126,7 @@ jobs:
         run: |
           az containerapp update \
             --name cms-frontend \
-            --resource-group rg-mern-project \
+            --resource-group rg-case-project \
             --image "${{ needs.build.outputs.frontend_image }}:${{ needs.build.outputs.image_tag }}" \
             --output none
 
@@ -135,12 +135,12 @@ jobs:
           for app in cms-backend cms-frontend; do
             echo "Waiting for $app..."
             rev=$(az containerapp show \
-              --resource-group rg-mern-project \
+              --resource-group rg-case-project \
               --name "$app" \
               --query properties.latestRevisionName -o tsv)
             for i in $(seq 1 40); do
               state=$(az containerapp revision list \
-                --resource-group rg-mern-project \
+                --resource-group rg-case-project \
                 --name "$app" \
                 --query "[?name=='$rev'].properties.runningState | [0]" -o tsv 2>/dev/null || echo "")
               echo "  $app ($rev): ${state:-unknown}"
@@ -152,7 +152,7 @@ jobs:
       - name: Smoke test (frontend → nginx proxy → backend → MongoDB)
         run: |
           fqdn=$(az containerapp show \
-            --resource-group rg-mern-project \
+            --resource-group rg-case-project \
             --name cms-frontend \
             --query properties.configuration.ingress.fqdn -o tsv)
           echo "https://$fqdn"

@@ -197,7 +197,7 @@ Required GitHub Actions secrets:
 | `AZURE_SUBSCRIPTION_ID` | Azure subscription ID |
 
 > The **deploy** job only works after the Azure resources exist
-> (`rg-mern-project`, environment `env-mern-project`, container apps
+> (`rg-case-project`, environment `env-mern-project`, container apps
 > `cms-frontend`/`cms-backend`, Azure Files share). Provisioning is done once
 > via `infra/provision.ps1`.
 
