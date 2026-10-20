@@ -110,8 +110,7 @@ jobs:
           az containerapp secret set \
             --name cms-backend \
             --resource-group rg-case-project \
-            --secret-name mongo-uri \
-            --value "$MONGO_URI" \
+            --secrets "mongo-uri=$MONGO_URI" \
             --output none
 
       - name: Deploy backend
