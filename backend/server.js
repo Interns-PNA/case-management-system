@@ -10,6 +10,7 @@ const designationRoutes = require("./routes/designations");
 const statusRoutes = require("./routes/statusRoutes");
 
 const User = require("./models/User");
+const Case = require("./models/Case");
 const app = express();
 dotenv.config();
 
@@ -39,8 +40,8 @@ const { seed } = require("./scripts/seed");
 
 // Call ensureAdminUser only after DB is connected
 connectDB().then(async () => {
-  const userCount = await User.countDocuments();
-  if (userCount === 0) {
+  const caseCount = await Case.countDocuments();
+  if (caseCount === 0) {
     console.log("Empty database detected — seeding demo data...");
     try {
       await seed({ disconnect: false });
