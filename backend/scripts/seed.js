@@ -59,8 +59,10 @@ function randDateWithin(daysBack = 180) {
   return new Date(past);
 }
 
-async function seed() {
-  await connect();
+async function seed(options = {}) {
+  if (mongoose.connection.readyState !== 1) {
+    await connect();
+  }
   console.log("Connected. Clearing existing data...");
   await clearCollections();
 
@@ -297,11 +299,17 @@ async function seed() {
     Cases: cases.length,
   });
 
-  await mongoose.disconnect();
-  console.log("Disconnected.");
+  if (options.disconnect !== false) {
+    await mongoose.disconnect();
+    console.log("Disconnected.");
+  }
 }
 
-seed().catch((err) => {
-  console.error("Seed error", err);
-  mongoose.disconnect();
-});
+module.exports = { seed };
+
+if (require.main === module) {
+  seed().catch((err) => {
+    console.error("Seed error", err);
+    mongoose.disconnect();
+  });
+}

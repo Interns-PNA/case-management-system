@@ -35,8 +35,20 @@ async function ensureAdminUser() {
   }
 }
 
+const { seed } = require("./scripts/seed");
+
 // Call ensureAdminUser only after DB is connected
-connectDB().then(() => {
+connectDB().then(async () => {
+  const userCount = await User.countDocuments();
+  if (userCount === 0) {
+    console.log("Empty database detected — seeding demo data...");
+    try {
+      await seed({ disconnect: false });
+      console.log("Demo data seeded.");
+    } catch (err) {
+      console.error("Seeding failed:", err);
+    }
+  }
   ensureAdminUser();
 });
 
